@@ -1,0 +1,10 @@
+<h1>Catalog items</h1>
+{% if latest_catalog_list %}
+    <ul>
+    {% for catalog_item in latest_catalog_list %}
+        <li>{{ catalog_item }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No items are available.</p>
+{% endif %}

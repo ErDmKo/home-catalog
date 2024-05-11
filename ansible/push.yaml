@@ -1,0 +1,37 @@
+---
+- hosts: web
+  name: push image 
+  vars:
+    install_dirr: '/opt/home_catalog'
+    app_name: 'home_catalog_app'
+    image_name: 'home_catalog'
+  tasks:
+  - name: directory exist
+    ansible.builtin.file:
+      path: "{{ install_dirr }}"
+      state: directory
+  - name: push image
+    ansible.posix.synchronize:
+      src: './../image.tar'
+      dest: '{{ install_dirr }}'
+  - name: Stop docker container
+    ansible.builtin.shell: |
+      docker stop {{ app_name }} || true
+  - name: Remove old container
+    ansible.builtin.shell: |
+      docker rm {{ app_name }} || true
+  - name: Remove old image
+    ansible.builtin.shell: docker rmi {{ image_name }} || true
+  - name: Load image to docker
+    ansible.builtin.shell: docker load --input image.tar
+    args:
+      chdir: "{{ install_dirr }}"
+  - name: run app from docker
+    ansible.builtin.shell: |
+      docker run \
+      --publish 8081:8000 \
+      -d \
+      --mount source=edk,target=/app/db \
+      --name {{ app_name }} \
+      --restart unless-stopped \
+      {{ image_name }}
