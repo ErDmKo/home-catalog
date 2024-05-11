@@ -8,4 +8,5 @@ class CatalodItemAdmin(admin.ModelAdmin):
     list_editable = ['count']
     list_filter = ['count']
     search_fields = ['name__icontains']
+    ordering = ["name", "pk"]
 

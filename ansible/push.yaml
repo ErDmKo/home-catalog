@@ -35,3 +35,8 @@
       --name {{ app_name }} \
       --restart unless-stopped \
       {{ image_name }}
+  - name: migrate
+    ansible.builtin.shell: |
+      docker exec \
+      {{ app_name }} \
+      ./manage.py migrate
