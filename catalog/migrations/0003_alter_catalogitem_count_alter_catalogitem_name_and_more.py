@@ -4,29 +4,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('catalog', '0002_alter_catalogitem_count'),
+        ("catalog", "0002_alter_catalogitem_count"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='catalogitem',
-            name='count',
-            field=models.DecimalField(decimal_places=5, default=0, max_digits=100, verbose_name='Количество'),
+            model_name="catalogitem",
+            name="count",
+            field=models.DecimalField(
+                decimal_places=5, default=0, max_digits=100, verbose_name="Количество"
+            ),
         ),
         migrations.AlterField(
-            model_name='catalogitem',
-            name='name',
-            field=models.CharField(max_length=200, unique=True, verbose_name='Наименование вещи'),
+            model_name="catalogitem",
+            name="name",
+            field=models.CharField(
+                max_length=200, unique=True, verbose_name="Наименование вещи"
+            ),
         ),
         migrations.AlterField(
-            model_name='catalogitem',
-            name='pub_date',
-            field=models.DateTimeField(verbose_name='Дата публикации'),
+            model_name="catalogitem",
+            name="pub_date",
+            field=models.DateTimeField(verbose_name="Дата публикации"),
         ),
         migrations.AddIndex(
-            model_name='catalogitem',
-            index=models.Index(fields=['name'], name='name_idx'),
+            model_name="catalogitem",
+            index=models.Index(fields=["name"], name="name_idx"),
         ),
     ]

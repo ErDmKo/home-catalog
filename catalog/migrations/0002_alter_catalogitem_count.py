@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('catalog', '0001_initial'),
+        ("catalog", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='catalogitem',
-            name='count',
+            model_name="catalogitem",
+            name="count",
             field=models.DecimalField(decimal_places=5, default=0, max_digits=100),
         ),
     ]
