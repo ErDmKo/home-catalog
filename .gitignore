@@ -1,5 +1,5 @@
 *.sqlite3
 image.tar
-static
+staticfiles
 **/__pycache__
 .env

@@ -12,6 +12,7 @@ WORKDIR /app
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONPATH="/opt/venv/lib/python3.10/site-packages"
+ENV IS_LIVE=1
 EXPOSE 80
 COPY . /app 
 
