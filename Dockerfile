@@ -7,14 +7,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN pip install --upgrade pip
 RUN pip install -Ur requirements.txt --no-cache-dir
 
-FROM python:3-slim
-WORKDIR /app
-COPY --from=builder /opt/venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONPATH="/opt/venv/lib/python3.10/site-packages"
 ENV IS_LIVE=1
 EXPOSE 80
 COPY . /app 
 
-
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "home_catalog.asgi:application"]
