@@ -40,6 +40,8 @@ def index(request):
         groups = []
         selected_group = ItemGroup.objects.get(id=query_dict["group"])
         list_query = list_query & Q(group=query_dict["group"])
+    else:
+        list_query = list_query & Q(group=None)
     return render(
         request,
         "catalog/index.html",

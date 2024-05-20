@@ -17,25 +17,21 @@
     </button>
   {% endif %}
 </form>
-{% if latest_catalog_list %}
-    <ul class="catalog_list">
-    {% for group in groups %}
-        <li class="catalog_item">
-          <a class="catalog_item_button" href="?{{ query }}&group={{ group.id }}">{{ group }}</a>
-        </li>
-    {% endfor %}
-    {% for catalog_item in latest_catalog_list %}
-        <li class="catalog_item">
-          <form method="post" action="{% url 'update' catalog_item.id %}?{{ query }}">
-            {% csrf_token %}
-            <button class="catalog_item_button" name="action">
-              {{ catalog_item }}
-            </button>
-          </form>
-        </li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No items are available.</p>
-{% endif %}
+<ul class="catalog_list">
+{% for group in groups %}
+    <li class="catalog_item">
+      <a class="catalog_item_button" href="?{{ query }}&group={{ group.id }}">{{ group }}</a>
+    </li>
+{% endfor %}
+{% for catalog_item in latest_catalog_list %}
+    <li class="catalog_item">
+      <form method="post" action="{% url 'update' catalog_item.id %}?{{ query }}">
+        {% csrf_token %}
+        <button class="catalog_item_button" name="action">
+          {{ catalog_item }}
+        </button>
+      </form>
+    </li>
+{% endfor %}
+</ul>
 {% endblock %}
