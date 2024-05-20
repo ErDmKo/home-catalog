@@ -1,30 +1,36 @@
 {% extends 'catalog/base.html' %}
 {% block content %}
-<h1>Catalog items</h1>
+<h1 class="main_header"><a href="{% url 'index' %}">Каталог товаров</a></h1>
+{% if query_dict.group %}
+<h2 class="main_header">Группа {{ selected_group }}</h2>
+{% endif %}
 <form action="">
-  {% if only_to_by %}
-    <button>
-      Все
+  Действие
+  <input type="hidden" name="group" value="{{ query_dict.group }}">
+  {% if query_dict.only_to_by %}
+    <button name="only_to_by" value="">
+      Отметить как купленное
     </button>
   {% else %}
-  <button name="only_to_by" value="1">
-    Только на покупку
-  </button>
+    <button name="only_to_by" value="1">
+      Запланировать покупку
+    </button>
   {% endif %}
 </form>
 {% if latest_catalog_list %}
-    <ul>
+    <ul class="catalog_list">
+    {% for group in groups %}
+        <li class="catalog_item">
+          <a class="catalog_item_button" href="?{{ query }}&group={{ group.id }}">{{ group }}</a>
+        </li>
+    {% endfor %}
     {% for catalog_item in latest_catalog_list %}
         <li class="catalog_item">
-          <form method="post" action="{% url 'update' catalog_item.id %}?only_to_by={{ only_to_by }}">
+          <form method="post" action="{% url 'update' catalog_item.id %}?{{ query }}">
             {% csrf_token %}
-            <button class="catalog_item_button" name="action">{% if catalog_item.to_buy == True %}
-              Куплуенно
-            {% else %}
-              На покупку
-            {% endif %}
+            <button class="catalog_item_button" name="action">
+              {{ catalog_item }}
             </button>
-            {{ catalog_item }}
           </form>
         </li>
     {% endfor %}
