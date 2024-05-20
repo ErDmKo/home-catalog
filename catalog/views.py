@@ -4,14 +4,17 @@ from .models import CatalogItem
 
 
 def update(request, catalog_item_id):
-    item = CatalogItem.objects.get(id=catalog_item_id)
-    item.to_buy = not item.to_buy
-    item.save()
     path = reverse("index")
     only_to_by = request.GET.get("only_to_by")
     url_query = ""
     if only_to_by:
         url_query = f"only_to_by={only_to_by}"
+
+    if not request.user.is_authenticated:
+        return redirect(f"{path}?{url_query}")
+    item = CatalogItem.objects.get(id=catalog_item_id)
+    item.to_buy = not item.to_buy
+    item.save()
     return redirect(f"{path}?{url_query}")
 
 
