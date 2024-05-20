@@ -1,6 +1,7 @@
 from django.db import models
 from datetime import datetime
 
+
 class ItemGroup(models.Model):
     title = models.CharField("Название группы", max_length=200)
 
@@ -10,6 +11,7 @@ class ItemGroup(models.Model):
     class Meta:
         ordering = ["title"]
         verbose_name_plural = "Группы вещей"
+
 
 class CatalogItem(models.Model):
     name = models.CharField("Наименование вещи", unique=True, max_length=200)
@@ -21,7 +23,7 @@ class CatalogItem(models.Model):
     group = models.ManyToManyField(ItemGroup, blank=True)
 
     class Meta:
-        ordering = ["name"]
+        ordering = [models.F("group__title"), "name"]
         indexes = [models.Index(fields=["name"], name="name_idx")]
         verbose_name_plural = "Каталог вещей"
 

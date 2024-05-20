@@ -1,10 +1,35 @@
+{% extends 'catalog/base.html' %}
+{% block content %}
 <h1>Catalog items</h1>
+<form action="">
+  {% if only_to_by %}
+    <button>
+      Все
+    </button>
+  {% else %}
+  <button name="only_to_by" value="1">
+    Только на покупку
+  </button>
+  {% endif %}
+</form>
 {% if latest_catalog_list %}
     <ul>
     {% for catalog_item in latest_catalog_list %}
-        <li>{{ catalog_item }}</a></li>
+        <li class="catalog_item">
+          <form method="post" action="{% url 'update' catalog_item.id %}?only_to_by={{ only_to_by }}">
+            {% csrf_token %}
+            <button class="catalog_item_button" name="action">{% if catalog_item.to_buy == True %}
+              Куплуенно
+            {% else %}
+              На покупку
+            {% endif %}
+            </button>
+            {{ catalog_item }}
+          </form>
+        </li>
     {% endfor %}
     </ul>
 {% else %}
     <p>No items are available.</p>
 {% endif %}
+{% endblock %}

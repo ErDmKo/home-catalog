@@ -129,6 +129,12 @@ STATIC_ROOT = Path.joinpath(BASE_DIR, "staticfiles")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "loggers": {
+        "django.db.backends": {
+            "level": "DEBUG",
+            "handlers": ["console"],
+        }
+    },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",

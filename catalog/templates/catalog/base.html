@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Каталог вещей{% endblock title %}</title>
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Poiret+One|Roboto&display=swap"/>
+        <meta name="msapplication-TileColor" content="#da532c">
+        <meta name="theme-color" content="#ffffff">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta name="description" content="{% block desc %}Каталог вещей{% endblock desc %}"/>
+
+        <link
+          media="print"
+          onload="this.onload=null;this.removeAttribute('media');"
+          href="https://fonts.googleapis.com/css?family=Poiret+One|Roboto&display=swap" 
+          rel="stylesheet">
+        <link 
+            rel="stylesheet"
+            href="{% static 'catalog/style.css' %}"/>
+        {% block head %}{% endblock head %}
+    </head>
+    <body>
+        {% block content %}{% endblock content %}
+    </body>
+</html>
