@@ -30,6 +30,7 @@ DEBUG = False if os.environ.get("IS_LIVE", False) else True
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     "catalog.apps.CatalogConfig",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -138,7 +139,7 @@ LOGGING = {
         "level": "WARNING",
     },
 }
-
+ASGI_APPLICATION = "home_catalog.asgi.application"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ALLOWED_HOSTS = ["erdmko.dev", "localhost"]
 CSRF_TRUSTED_ORIGINS = ["https://erdmko.dev", "http://localhost"]
