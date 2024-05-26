@@ -12,6 +12,10 @@
   margin: 10px 10px;
   display: inline-block;
 }
+.catalog_error {
+  color: red;
+  padding: 10px;
+}
 
 .catalog_item_button {
   cursor: pointer;

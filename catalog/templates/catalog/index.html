@@ -1,12 +1,19 @@
 {% extends 'catalog/base.html' %}
 {% block content %}
 <h1 class="main_header"><a href="{% url 'index' %}">Каталог товаров</a></h1>
+{% if query_dict.error %}
+<div class="catalog_error">
+  {{ query_dict.error }}
+</div>
+{% endif %}
 {% if query_dict.group %}
 <h2 class="main_header">Группа {{ selected_group }}</h2>
 {% endif %}
 <form action="">
   Действие
-  <input type="hidden" name="group" value="{{ query_dict.group }}">
+  {% for field, value in query_dict.items %}
+    <input type="hidden" name="{{ field }}" value="{{ value }}">
+  {% endfor %}
   {% if query_dict.only_to_by %}
     <button name="only_to_by" value="">
       Отметить как купленное
@@ -14,6 +21,15 @@
   {% else %}
     <button name="only_to_by" value="1">
       Запланировать покупку
+    </button>
+  {% endif %}
+  {% if query_dict.flat_view %}
+    <button name="flat_view" value="">
+      Показать в категориях
+    </button>
+  {% else %}
+    <button name="flat_view" value="1">
+      Раскрыть категории
     </button>
   {% endif %}
 </form>
