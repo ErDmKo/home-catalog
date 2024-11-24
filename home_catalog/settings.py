@@ -31,6 +31,7 @@ DEBUG = False if os.environ.get("IS_LIVE", False) else True
 
 INSTALLED_APPS = [
     "daphne",
+    "social_django",
     "catalog.apps.CatalogConfig",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -149,3 +150,17 @@ ASGI_APPLICATION = "home_catalog.asgi.application"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ALLOWED_HOSTS = ["erdmko.dev", "localhost"]
 CSRF_TRUSTED_ORIGINS = ["https://erdmko.dev", "http://localhost"]
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "social_core.backends.google.GoogleOAuth2",
+]
+
+LOGIN_REDIRECT_URL = "/catalog/"
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ""
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ""
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass
