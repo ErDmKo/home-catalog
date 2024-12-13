@@ -7,10 +7,8 @@ from django.db.models import Q
 
 query_parmas = ["only_to_by", "group", "flat_view", "error"]
 
-
 def encode(str_query):
     return urlencode(str_query, quote_via=quote)
-
 
 def get_query_state(request):
     return_dict = {}
@@ -35,21 +33,24 @@ def update(request, catalog_item_id):
 
 def index(request):
     list_query = Q(to_buy=False)
-    groups = ItemGroup.objects.all().distinct()
+    if not request.user.is_authenticated:
+        return render(request, "catalog/auth.html", {})
+    groups = ItemGroup.objects.filter().distinct()
     query_dict = get_query_state(request)
     selected_group = None
     if query_dict.get("only_to_by"):
         groups = ItemGroup.objects.filter(catalogitem__to_buy=True).distinct()
         list_query = Q(to_buy=True)
     if query_dict.get("group"):
-        groups = []
+        groups = ItemGroup.objects.none()
         selected_group = ItemGroup.objects.get(id=query_dict["group"])
         list_query = list_query & Q(group=query_dict["group"])
     elif query_dict.get("flat_view"):
-        groups = []
-        list_query = list_query
+        groups = ItemGroup.objects.none()
     else:
         list_query = list_query & Q(group=None)
+    list_query = list_query & Q(catalog_group__owners=request.user)
+    groups = groups & ItemGroup.objects.filter(catalogitem__catalog_group__owners=request.user).distinct()
     str_query = encode(query_dict)
     return render(
         request,

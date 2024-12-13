@@ -1,0 +1,9 @@
+{% extends 'catalog/base.html' %}
+{% block content %}
+<h1 class="main_header"><a href="{% url 'index' %}">Каталог товаров</a></h1>
+
+<h2>Auth needed</h2>
+{% if not request.user.is_authenticated %}
+  <a href="{% url "social:begin" "google-oauth2" %}">Login</a>
+{% endif %}
+{% endblock %}

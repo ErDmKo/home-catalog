@@ -1,6 +1,18 @@
-from django.db import models
 from datetime import datetime
 
+from django.contrib.auth.models import User
+from django.db import models
+
+class CatalogGroup(models.Model):
+    name = models.CharField("Наименование каталога", unique=True, max_length=200)
+    owners = models.ManyToManyField(User, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name_plural = "Каталоги"
 
 class ItemGroup(models.Model):
     title = models.CharField("Название группы", max_length=200)
@@ -15,6 +27,12 @@ class ItemGroup(models.Model):
 
 class CatalogItem(models.Model):
     name = models.CharField("Наименование вещи", unique=True, max_length=200)
+    catalog_group = models.ForeignKey(
+        CatalogGroup, 
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    ) 
     count = models.DecimalField(
         "Количество", default=0, max_digits=100, decimal_places=5
     )
