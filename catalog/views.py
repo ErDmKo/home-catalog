@@ -7,8 +7,10 @@ from django.db.models import Q
 
 query_parmas = ["only_to_by", "group", "flat_view", "error"]
 
+
 def encode(str_query):
     return urlencode(str_query, quote_via=quote)
+
 
 def get_query_state(request):
     return_dict = {}
@@ -50,7 +52,12 @@ def index(request):
     else:
         list_query = list_query & Q(group=None)
     list_query = list_query & Q(catalog_group__owners=request.user)
-    groups = groups & ItemGroup.objects.filter(catalogitem__catalog_group__owners=request.user).distinct()
+    groups = (
+        groups
+        & ItemGroup.objects.filter(
+            catalogitem__catalog_group__owners=request.user
+        ).distinct()
+    )
     str_query = encode(query_dict)
     return render(
         request,
