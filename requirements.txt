@@ -34,3 +34,4 @@ typing_extensions==4.11.0
 urllib3==2.2.3
 whitenoise==6.6.0
 zope.interface==6.3
+esbuild-py @ git+https://github.com/ErDmKo/esbuild-py@add_build_api
