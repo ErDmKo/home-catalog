@@ -42,7 +42,7 @@ export const subscribe = <EventType>(callback: (e: EventType) => void) => {
 export const delayOperator = <T>(delay: number, state: ObserverState<T>) => {
     const oldObserver = observer(state);
     const newObserver = observer<T>();
-    let timeOut = null;
+    let timeOut: number = 0;
     oldObserver(
         bindArg((newVal: T) => {
             clearTimeout(timeOut);

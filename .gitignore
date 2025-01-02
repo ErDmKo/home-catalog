@@ -3,3 +3,4 @@ image.tar
 staticfiles
 **/__pycache__
 .env
+.venv

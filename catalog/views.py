@@ -7,10 +7,8 @@ from django.db.models import Q
 
 query_parmas = ["only_to_by", "group", "flat_view", "error"]
 
-
 def encode(str_query):
     return urlencode(str_query, quote_via=quote)
-
 
 def get_query_state(request):
     return_dict = {}
