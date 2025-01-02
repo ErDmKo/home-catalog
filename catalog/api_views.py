@@ -8,7 +8,8 @@ class CatalogItemViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows catalog items to be managed (view, careate, delete)
     """
-    queryset = CatalogItem.objects.all().order_by('name')
+
+    queryset = CatalogItem.objects.all().order_by("name")
     serializer_class = CatalogItemSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['name', 'group__title']
+    search_fields = ["name", "group__title"]
