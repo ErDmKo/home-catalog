@@ -281,6 +281,11 @@ wheels = [
 ]
 
 [[package]]
+name = "esbuild-py"
+version = "0.1.5"
+source = { git = "https://github.com/ErDmKo/esbuild-py?rev=add_build_api#13598b04f5686dfeefa69bc361735e9ce6d81ae8" }
+
+[[package]]
 name = "home-catalog"
 version = "0.1.0"
 source = { virtual = "." }
@@ -289,6 +294,7 @@ dependencies = [
     { name = "django" },
     { name = "django-filter" },
     { name = "djangorestframework" },
+    { name = "esbuild-py" },
     { name = "ruff" },
     { name = "social-auth-app-django" },
     { name = "whitenoise" },
@@ -300,6 +306,7 @@ requires-dist = [
     { name = "django", specifier = "==5.0.4" },
     { name = "django-filter", specifier = ">=24.3" },
     { name = "djangorestframework", specifier = ">=3.15.2" },
+    { name = "esbuild-py", git = "https://github.com/ErDmKo/esbuild-py?rev=add_build_api" },
     { name = "ruff", specifier = "==0.4.4" },
     { name = "social-auth-app-django", specifier = "==5.4.2" },
     { name = "whitenoise", specifier = "==6.6.0" },

@@ -7,5 +7,10 @@
 
 ### Format
 ```bash
-./manage.py format
+uv manage.py format
+```
+
+### Develop
+```bash
+uv manage.py format
 ```
