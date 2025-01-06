@@ -9,7 +9,7 @@ type Props =
     | readonly [type: typeof PROP, key: string, value: PropType]
     | readonly [type: typeof REF] ;
 
-type TagName = keyof HTMLElementTagNameMap;
+export type TagName = keyof HTMLElementTagNameMap;
 
 export type DOMStruct<K extends TagName> = readonly [
     tag: K,
@@ -101,7 +101,7 @@ export const domCreator = <K extends keyof HTMLElementTagNameMap>(
     return refs;
 };
 
-export const cleanHtml = (root: HTMLElement) => {
+export const cleanHtml = (root: Element) => {
     while (root.firstChild) {
         root.removeChild(root.firstChild);
     }
