@@ -7,10 +7,10 @@
 
 ### Format
 ```bash
-uv manage.py format
+uv run manage.py format
 ```
 
 ### Develop
 ```bash
-uv manage.py format
+uv run manage.py compile && uv run manage.py runserver
 ```
