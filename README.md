@@ -1,8 +1,13 @@
 ## Managment commands
 
+### Install for develop
+```bash
+uv sync --all-extras
+```
+
 ### Deploy
 ```bash
-./manage.py deploy
+uv run manage.py deploy
 ```
 
 ### Format

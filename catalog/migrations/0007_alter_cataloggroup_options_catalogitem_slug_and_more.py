@@ -5,30 +5,29 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('catalog', '0006_alter_catalogitem_catalog_group'),
+        ("catalog", "0006_alter_catalogitem_catalog_group"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='cataloggroup',
-            options={'ordering': ['name'], 'verbose_name_plural': 'Каталоги'},
+            name="cataloggroup",
+            options={"ordering": ["name"], "verbose_name_plural": "Каталоги"},
         ),
         migrations.AddField(
-            model_name='catalogitem',
-            name='slug',
-            field=models.SlugField(default='-', verbose_name='slug'),
+            model_name="catalogitem",
+            name="slug",
+            field=models.SlugField(default="-", verbose_name="slug"),
         ),
         migrations.AddField(
-            model_name='itemgroup',
-            name='slug',
-            field=models.SlugField(default='-', verbose_name='slug'),
+            model_name="itemgroup",
+            name="slug",
+            field=models.SlugField(default="-", verbose_name="slug"),
         ),
         migrations.AlterField(
-            model_name='cataloggroup',
-            name='owners',
+            model_name="cataloggroup",
+            name="owners",
             field=models.ManyToManyField(blank=True, to=settings.AUTH_USER_MODEL),
         ),
     ]

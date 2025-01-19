@@ -3,6 +3,7 @@ from slugify import slugify
 from django.contrib.auth.models import User
 from django.db import models
 
+
 class CatalogGroup(models.Model):
     name = models.CharField("Наименование каталога", unique=True, max_length=200)
     owners = models.ManyToManyField(User, blank=True)
@@ -31,8 +32,10 @@ class ItemGroup(models.Model):
         ordering = ["title"]
         verbose_name_plural = "Группы вещей"
 
+
 def slugify_function(content):
-   return slugify(content)
+    return slugify(content)
+
 
 class CatalogItem(models.Model):
     name = models.CharField("Наименование вещи", unique=True, max_length=200)

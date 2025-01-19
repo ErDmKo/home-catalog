@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
+from django.core.management import call_command
 import subprocess
 
 
@@ -8,8 +9,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         PROJECT_NAME = "home_catalog"
 
-        subprocess.run(["./manage.py", "build"])
-        subprocess.run("pwd")
+        call_command("build")
         subprocess.run(
             [
                 "ansible-playbook",
