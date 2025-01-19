@@ -38,9 +38,7 @@ export const genText = (text: string | number): Props => {
 
 export const genClass = (className: string): Props => {
   return [ATTR, 'class', className] as const
-}
-
-export const DOM_ERROR = '';
+};
 
 export const genTagDiv = <T extends TagName>(
   props: Props[],

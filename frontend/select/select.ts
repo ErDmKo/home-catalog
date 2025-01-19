@@ -1,21 +1,30 @@
-import { asserFalsy } from "../utils/assert";
+import { asserFalsy, DOM_ERROR } from "../utils/assert";
 import { bindArg } from "../utils/bind";
-import { cleanHtml, DOM_ERROR, domCreator, genClass, genProp, genRef, genTagDiv, genText } from "../utils/dom";
+import { cleanHtml, domCreator, genAttr, genClass, genProp, genRef, genTagDiv, genText } from "../utils/dom";
 import { delayOperator, lazyObserver, next, observer, ObserverInstance, subscribe } from "../utils/observer";
 
-type SelectOption = {
+export type SelectOption = {
   label: string,
   value: string,
   to_buy: boolean,
-  pk: number
 }
 
-const TO_BUY_ACTION = 0;
-const ADD_ACTION = 1;
+export const OPTIONS_ADD = 0;
+export const OPTIONS_UPDATE = 1;
 
-type Actions = typeof TO_BUY_ACTION | typeof ADD_ACTION;
+export type OptionsAction =
+  | [typeof OPTIONS_ADD, SelectOption[]]
+  | [typeof OPTIONS_UPDATE, SelectOption[]]
+
+export const PATH_NOT_BUY = 0;
+export const PATH_TO_BUY = 1;
+
+type ItemActions = 
+  | [typeof PATH_NOT_BUY, value: string] 
+  | [typeof PATH_TO_BUY, value: string];
 
 const FONT_SIZE = '16px';
+
 
 const wrapperElem = (ctx: Window, element: Element): HTMLDivElement => {
   asserFalsy(element.parentElement, DOM_ERROR);
@@ -51,42 +60,85 @@ const wrapperElem = (ctx: Window, element: Element): HTMLDivElement => {
   return optionsRef;
 }
 
-const renderOptions = (ctx: Window, root: Element, options: SelectOption[], actionObserver: ObserverInstance<Actions>) => {
-  const optionsTemplate = genTagDiv([genClass('options')], options.map((option) => {
-    return genTagDiv([
+const optionTemplate = (option: SelectOption, actionObserver: ObserverInstance<ItemActions>) => {
+  return genTagDiv([
+    genAttr('data-id', option.value),
+    genProp('style', {
+      fontSize: FONT_SIZE,
+      padding: '10px',
+      cursor: 'pointer',
+      borderTop: '1px solid #ccc'
+  })], [
+    genTagDiv([
+      genText(option.label),
+    ]),
+    genTagDiv([
+      genText(option.to_buy ? '🔴 Нужно купить' : '🟢 Покупать не нужно'),
+      genProp('onclick', () => {
+        actionObserver(next([option.to_buy ? PATH_NOT_BUY : PATH_TO_BUY, option.value]));
+      }),
       genProp('style', {
-        fontSize: FONT_SIZE,
-        padding: '10px',
-        cursor: 'pointer',
-        borderTop: '1px solid #ccc'
-    })], [
-      genTagDiv([
-        genText(option.label),
-      ]),
-      genTagDiv([
-        genText(option.to_buy ? 'Купить' : 'Не купить'),
-        genProp('onclick', () => {
-          actionObserver(next(option.to_buy ? TO_BUY_ACTION : ADD_ACTION));
-        }),
-        genProp('style', { fontSize: '12px', color: '#ccc' })
-      ])
+        display: 'inline-block',
+        fontSize: '12px',
+        color: option.to_buy ? 'red' : 'green', 
+        padding: '5px 0px',
+        margin: '10px 0px 0px'
+      })
     ])
-  }));
+  ])
+};
+
+const updateOptions = (
+  ctx: Window, 
+  root: Element,
+  data: SelectOption[],
+  actionObserver: ObserverInstance<ItemActions>
+) => {
+  const options = data.reduce((e, option) => {
+    e[option.value] = option;
+    return e;
+  }, {} as Record<string, SelectOption | undefined>);
+  const [optionsRoot] = root.children;
+  asserFalsy(optionsRoot, DOM_ERROR);
+  for (const elem of optionsRoot.children) {
+    const value = elem.getAttribute('data-id');
+    const option = options[`${value}`];
+    if (option) {
+      const template = optionTemplate(option, actionObserver);
+      const wrappper = ctx.document.createElement('div');
+      domCreator(ctx, wrappper, template);
+      const [newElem] = wrappper.children;
+      optionsRoot.replaceChild(newElem, elem);
+    }
+  }
+}
+
+const renderOptions = (
+  ctx: Window,
+  root: Element,
+  options: SelectOption[],
+  actionObserver: ObserverInstance<ItemActions>
+) => {
+  const optionsTemplate = genTagDiv(
+    [genClass('options')], 
+    options.map((option) => optionTemplate(option, actionObserver))
+  );
+
   cleanHtml(root);
   if (options.length) {
     domCreator(ctx, root, optionsTemplate);
   }
 };
 
-export const initSelect = <Data extends SelectOption>(
+export const initSelect = (
   ctx: Window,
   input: HTMLInputElement, 
   label: Element
-): [ObserverInstance<string>, ObserverInstance<Data[]>]  => {
+): [ObserverInstance<string>, ObserverInstance<OptionsAction>, ObserverInstance<ItemActions>]  => {
   const optionsRef = wrapperElem(ctx, input);
   const inputObserver = observer<string>();
-  const dataObserver = observer<Data[]>();
-  const actionObserver = observer<Actions>();
+  const dataObserver = observer<OptionsAction>();
+  const actionObserver = observer<ItemActions>();
   const [cancelSet, cancelGet] = lazyObserver<boolean>();
 
   label.addEventListener('input', (e) => {
@@ -111,13 +163,19 @@ export const initSelect = <Data extends SelectOption>(
     }
   });
 
-  dataObserver(subscribe((newData) => {
-    renderOptions(ctx, optionsRef, isCanceled ? [] : newData, actionObserver);
+  dataObserver(subscribe((action) => {
+    const [type, data] = action;
+    if (type === OPTIONS_ADD) {
+      renderOptions(ctx, optionsRef, isCanceled ? [] : data, actionObserver);
+    } else if (type === OPTIONS_UPDATE) {
+      updateOptions(ctx, optionsRef, data, actionObserver);
+    }
   }));
 
   return [
     inputObserver(bindArg(500, delayOperator)),
-    dataObserver
+    dataObserver,
+    actionObserver
   ];
 }
 
