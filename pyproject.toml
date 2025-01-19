@@ -12,5 +12,6 @@ dependencies = [
     "ruff==0.4.4",
     "social-auth-app-django==5.4.2",
     "whitenoise==6.6.0",
-    "esbuild-py @ git+https://github.com/ErDmKo/esbuild-py@add_build_api"
+    "esbuild-py @ git+https://github.com/ErDmKo/esbuild-py@add_build_api",
+    "python-slugify>=8.0.4",
 ]

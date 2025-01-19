@@ -25,3 +25,4 @@ class CatalogItemAdmin(admin.ModelAdmin):
     list_filter = ["to_buy", "catalog_group"]
     search_fields = ["name__icontains", "group__title"]
     ordering = ["name", "pk"]
+    prepopulated_fields = {"slug": ("name",)}

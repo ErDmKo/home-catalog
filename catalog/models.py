@@ -1,8 +1,7 @@
 from datetime import datetime
-
+from slugify import slugify
 from django.contrib.auth.models import User
 from django.db import models
-
 
 class CatalogGroup(models.Model):
     name = models.CharField("Наименование каталога", unique=True, max_length=200)
@@ -22,10 +21,18 @@ class ItemGroup(models.Model):
     def __str__(self):
         return self.title
 
+    slug = models.SlugField("slug", default="-")
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify_function(self.title)
+        super().save(*args, **kwargs)
+
     class Meta:
         ordering = ["title"]
         verbose_name_plural = "Группы вещей"
 
+def slugify_function(content):
+   return slugify(content)
 
 class CatalogItem(models.Model):
     name = models.CharField("Наименование вещи", unique=True, max_length=200)
@@ -38,6 +45,12 @@ class CatalogItem(models.Model):
     pub_date = models.DateTimeField("Дата публикации", default=datetime.now)
     to_buy = models.BooleanField("Нужно купить", default=False)
     group = models.ManyToManyField(ItemGroup, blank=True)
+
+    slug = models.SlugField("slug", default="-")
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify_function(self.name)
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = [models.F("group__title"), "name"]
