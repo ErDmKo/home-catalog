@@ -16,15 +16,19 @@ export type OptionsAction =
   | [typeof OPTIONS_ADD, SelectOption[]]
   | [typeof OPTIONS_UPDATE, SelectOption[]]
 
-export const PATH_NOT_BUY = 0;
-export const PATH_TO_BUY = 1;
+export const NOT_BUY = 0;
+export const TO_BUY = 1;
+export const ADD_GROUP = 2;
+export const ADD_ITEM = 3;
 
 type ItemActions = 
-  | [typeof PATH_NOT_BUY, value: string] 
-  | [typeof PATH_TO_BUY, value: string];
+  | [typeof NOT_BUY, value: string] 
+  | [typeof TO_BUY, value: string]
+  | [typeof ADD_ITEM, value: string]
+  | [typeof ADD_GROUP, value: string];
 
-const FONT_SIZE = '16px';
-
+const FONT_SIZE_NORMAL = '16px';
+const FONT_SIZE_SMALL = '12px';
 
 const wrapperElem = (ctx: Window, element: Element): HTMLDivElement => {
   asserFalsy(element.parentElement, DOM_ERROR);
@@ -32,7 +36,7 @@ const wrapperElem = (ctx: Window, element: Element): HTMLDivElement => {
     genClass('wrapper'),
     genProp('style', {
       border: '1px solid #ccc',
-      fontSize: FONT_SIZE,
+      fontSize: FONT_SIZE_NORMAL,
       margin: '20px 0',
     }),
     genRef()
@@ -51,7 +55,7 @@ const wrapperElem = (ctx: Window, element: Element): HTMLDivElement => {
   }
   Object.assign(element.style, {
     boxSizing: 'border-box',
-    fontSize: FONT_SIZE,
+    fontSize: FONT_SIZE_NORMAL,
     width: '100%',
     padding: '10px',
     border: 'none',
@@ -60,30 +64,34 @@ const wrapperElem = (ctx: Window, element: Element): HTMLDivElement => {
   return optionsRef;
 }
 
+const optionStyle = () => ({
+  fontSize: FONT_SIZE_NORMAL,
+  padding: '10px',
+  cursor: 'pointer',
+  borderTop: '1px solid #ccc'
+});
+
+const optionActionStyle = (option: SelectOption) => ({
+  display: 'inline-block',
+  fontSize: FONT_SIZE_SMALL,
+  color: option.to_buy ? 'red' : 'green', 
+  padding: '5px 0px',
+  margin: '10px 0px 0px'
+});
+
 const optionTemplate = (option: SelectOption, actionObserver: ObserverInstance<ItemActions>) => {
   return genTagDiv([
     genAttr('data-id', option.value),
-    genProp('style', {
-      fontSize: FONT_SIZE,
-      padding: '10px',
-      cursor: 'pointer',
-      borderTop: '1px solid #ccc'
-  })], [
+    genProp('style', optionStyle())], [
     genTagDiv([
       genText(option.label),
     ]),
     genTagDiv([
       genText(option.to_buy ? '🔴 Нужно купить' : '🟢 Покупать не нужно'),
       genProp('onclick', () => {
-        actionObserver(next([option.to_buy ? PATH_NOT_BUY : PATH_TO_BUY, option.value]));
+        actionObserver(next([option.to_buy ? NOT_BUY : TO_BUY, option.value]));
       }),
-      genProp('style', {
-        display: 'inline-block',
-        fontSize: '12px',
-        color: option.to_buy ? 'red' : 'green', 
-        padding: '5px 0px',
-        margin: '10px 0px 0px'
-      })
+      genProp('style', optionActionStyle(option))
     ])
   ])
 };
@@ -92,7 +100,8 @@ const updateOptions = (
   ctx: Window, 
   root: Element,
   data: SelectOption[],
-  actionObserver: ObserverInstance<ItemActions>
+  actionObserver: ObserverInstance<ItemActions>,
+  inputValue: string
 ) => {
   const options = data.reduce((e, option) => {
     e[option.value] = option;
@@ -113,19 +122,38 @@ const updateOptions = (
   }
 }
 
+const creationActionStyle = {
+  fontSize: FONT_SIZE_SMALL,
+  display: 'inline-block',
+  padding: '10px 15px'
+}
+
 const renderOptions = (
   ctx: Window,
   root: Element,
   options: SelectOption[],
-  actionObserver: ObserverInstance<ItemActions>
+  actionObserver: ObserverInstance<ItemActions>,
+  inputValue: string
 ) => {
+  const optionList = options.map((option) => optionTemplate(option, actionObserver));
   const optionsTemplate = genTagDiv(
     [genClass('options')], 
-    options.map((option) => optionTemplate(option, actionObserver))
+    [genTagDiv([
+      genProp('style', optionStyle()),
+    ], [
+      genTagDiv([
+        genText(`Добавить новую вещь: "${inputValue}"`),
+        genProp('style', creationActionStyle),
+        genProp('onclick', () => {
+          actionObserver(next([ADD_ITEM, inputValue]));
+        }),
+      ])
+    ])
+    ].concat(optionList)
   );
 
   cleanHtml(root);
-  if (options.length) {
+  if (inputValue) {
     domCreator(ctx, root, optionsTemplate);
   }
 };
@@ -140,6 +168,7 @@ export const initSelect = (
   const dataObserver = observer<OptionsAction>();
   const actionObserver = observer<ItemActions>();
   const [cancelSet, cancelGet] = lazyObserver<boolean>();
+  let inputValue = input.value;
 
   label.addEventListener('input', (e) => {
     if (!(e.target instanceof HTMLInputElement)) {
@@ -152,6 +181,7 @@ export const initSelect = (
     } else {
       cancelSet(true);
     }
+    inputValue = nextValue;
   });
 
   let isCanceled: boolean = false;
@@ -159,16 +189,16 @@ export const initSelect = (
   cancelGet((newIsCanceled) => {
     isCanceled = newIsCanceled;
     if (isCanceled) {
-      renderOptions(ctx, optionsRef, [], actionObserver);
+      renderOptions(ctx, optionsRef, [], actionObserver, inputValue);
     }
   });
 
   dataObserver(subscribe((action) => {
     const [type, data] = action;
     if (type === OPTIONS_ADD) {
-      renderOptions(ctx, optionsRef, isCanceled ? [] : data, actionObserver);
+      renderOptions(ctx, optionsRef, isCanceled ? [] : data, actionObserver, inputValue);
     } else if (type === OPTIONS_UPDATE) {
-      updateOptions(ctx, optionsRef, data, actionObserver);
+      updateOptions(ctx, optionsRef, data, actionObserver, inputValue);
     }
   }));
 

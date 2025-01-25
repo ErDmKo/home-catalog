@@ -20,4 +20,4 @@ class CatalogItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CatalogItem
-        fields = ["name", "group", "to_buy", "pk"]
+        fields = ["name", "group", "to_buy", "pk", "catalog_group"]

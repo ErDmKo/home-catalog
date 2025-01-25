@@ -20,7 +20,19 @@
         <link 
             rel="stylesheet"
             href="{% static 'catalog/style.css' %}"/>
-        {% block head %}{% endblock head %}
+        {% block head %}
+        <menu class="header">
+          <div><a href="{% url 'index' %}">Catalog app</a></div>
+          <div><a href="{% url 'item-add' %}">Add item</a></div>
+          <div>
+            {% if not request.user.is_authenticated %}
+            <a href="{% url "social:begin" "google-oauth2" %}">login</a>
+            {% else %}
+            <span>{{request.user.email}}</span>
+            {% endif %}
+          </div>
+        </menu>
+        {% endblock head %}
     </head>
     <body>
         {% block content %}{% endblock content %}

@@ -1,6 +1,6 @@
 import { buyApi, searchApi } from "./api";
 import { CatalogItem } from "./appType";
-import { initSelect, OPTIONS_ADD, OPTIONS_UPDATE, OptionsAction, PATH_TO_BUY, SelectOption, } from "./select/select";
+import { initSelect, OPTIONS_ADD, OPTIONS_UPDATE, OptionsAction, NOT_BUY, TO_BUY, SelectOption, ADD_ITEM, } from "./select/select";
 import { asserFalsy } from "./utils/assert";
 import { DOM_ERROR, INTERNAL_ERROR } from "./utils/assert";
 import { next, subscribe } from "./utils/observer";
@@ -25,13 +25,18 @@ export const intSelect = (ctx: Window, selector: string) => {
 
   actionObserver(subscribe((action) => {
     const [actionType, value] = action;
-    const pk = Number(value);
-    asserFalsy(pk, INTERNAL_ERROR);
-    buyApi(ctx, pk, actionType === PATH_TO_BUY)
-      .then((patchedItem) => {
-        const action: OptionsAction = [OPTIONS_UPDATE, [itemToOption(patchedItem)]];
-        dataObserver(next(action))
-      })
+    if (actionType === ADD_ITEM) {
+      ctx.location.href = `/catalog/item/add?name=${value}`
+    }
+    if ([TO_BUY, NOT_BUY].includes(actionType)) {
+      const pk = Number(value);
+      asserFalsy(pk, INTERNAL_ERROR);
+      buyApi(ctx, pk, actionType === TO_BUY)
+        .then((patchedItem) => {
+          const action: OptionsAction = [OPTIONS_UPDATE, [itemToOption(patchedItem)]];
+          dataObserver(next(action))
+        })
+    }
   }));
 
   inputObserver(subscribe((value) => {

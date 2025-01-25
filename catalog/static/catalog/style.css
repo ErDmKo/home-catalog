@@ -1,6 +1,9 @@
 * {
   font-family: 'Roboto', 'sans-serif'
 }
+body {
+  margin: 0px 10px;
+}
 .catalog_list {
   padding: 20px 0px;
   margin: 0px;
@@ -15,6 +18,20 @@
 .catalog_error {
   color: red;
   padding: 10px;
+}
+
+.header {
+  display: flex;
+  padding: 10px 0px;
+  margin: 0px;
+}
+
+.header div {
+  margin: 10px
+}
+
+.header div:last-child { 
+  margin-left: auto;
 }
 
 .catalog_item_button {

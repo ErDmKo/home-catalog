@@ -6,7 +6,7 @@ from rest_framework.fields import CharField
 from django.db import models
 from django.utils.text import smart_split, unescape_string_literal
 
-from .models import CatalogItem, ItemGroup, slugify_function
+from .models import CatalogItem, ItemGroup, slugify_function, CatalogGroup
 from .serializers import CatalogItemSerializer
 
 
@@ -35,7 +35,6 @@ class MyBackend(filters.SearchFilter):
         and may be whitespace delimited.
         """
         value = request.query_params.get(self.search_param, "")
-        print(value)
         slugifyed_value = slugify_function(value)
         field = CharField(trim_whitespace=False, allow_blank=True)
         cleaned_value = field.run_validation(slugifyed_value)
@@ -51,3 +50,8 @@ class CatalogItemViewSet(viewsets.ModelViewSet):
     serializer_class = CatalogItemSerializer
     filter_backends = [MyBackend]
     search_fields = ["slug", "group__slug"]
+
+    def get_queryset(self):
+        user = self.request.user
+        qs = super().get_queryset()
+        return qs.filter(catalog_group__owners = user.id)

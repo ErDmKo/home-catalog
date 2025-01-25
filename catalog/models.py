@@ -21,7 +21,7 @@ class ItemGroup(models.Model):
     slug = models.SlugField("slug", default="-")
 
     def __str__(self):
-        return f"{self.title} ({self.slug})"
+        return f"{self.title}"
 
     def save(self, *args, **kwargs):
         self.slug = slugify_function(self.title)
@@ -61,4 +61,4 @@ class CatalogItem(models.Model):
 
     def __str__(self):
         grops = "".join([f"[{group.title}]" for group in self.group.all()])
-        return f"{grops} {self.name} ({self.slug})"
+        return f"{grops} {self.name}"

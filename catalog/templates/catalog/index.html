@@ -2,18 +2,14 @@
 {% load static %}
 {% block content %}
 <h1 class="main_header">
-  <a href="{% url 'index' %}">Catalog app </a>
-  {% if not request.user.is_authenticated %}
-    <a href="{% url "social:begin" "google-oauth2" %}">login</a>
-  {% else %}
-    <span> - {{request.user.email}}</span>
-  {% endif %}
 </h1>
 <script src="{% static 'catalog/js/bundle.js' %}"></script>
-<label class="search-select">
-  Поиск
-  <input type="text"/>
-</label>
+<div>
+  <label class="search-select">
+    Поиск
+    <input type="text"/>
+  </label>
+</div>
 {% if query_dict.error %}
 <div class="catalog_error">
   {{ query_dict.error }}
@@ -49,7 +45,7 @@
 <ul class="catalog_list">
 {% for group in groups %}
     <li class="catalog_item">
-      <a class="catalog_item_button" href="?{{ query }}&group={{ group.id }}">Group:{{ group }}</a>
+      <a class="catalog_item_button" href="?{{ query }}&group={{ group.id }}">[{{ group }}]</a>
     </li>
 {% endfor %}
 {% for catalog_item in latest_catalog_list %}

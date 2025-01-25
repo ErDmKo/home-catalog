@@ -5,7 +5,7 @@ from .models import CatalogItem, ItemGroup, CatalogGroup
 
 @admin.register(ItemGroup)
 class ItemGroupAdmin(admin.ModelAdmin):
-    pass
+    list_display = ["title", "slug"]
 
 
 @admin.register(CatalogGroup)
@@ -20,7 +20,7 @@ def catalog_item_name(obj):
 
 @admin.register(CatalogItem)
 class CatalogItemAdmin(admin.ModelAdmin):
-    list_display = [catalog_item_name, "to_buy", "catalog_group"]
+    list_display = [catalog_item_name, "slug", "to_buy", "catalog_group"]
     list_editable = ["to_buy", "catalog_group"]
     list_filter = ["to_buy", "catalog_group"]
     search_fields = ["name__icontains", "group__title"]
