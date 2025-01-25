@@ -18,11 +18,10 @@ class CatalogGroup(models.Model):
 
 class ItemGroup(models.Model):
     title = models.CharField("Название группы", max_length=200)
+    slug = models.SlugField("slug", default="-")
 
     def __str__(self):
-        return self.title
-
-    slug = models.SlugField("slug", default="-")
+        return f"{self.title} ({self.slug})"
 
     def save(self, *args, **kwargs):
         self.slug = slugify_function(self.title)
@@ -62,4 +61,4 @@ class CatalogItem(models.Model):
 
     def __str__(self):
         grops = "".join([f"[{group.title}]" for group in self.group.all()])
-        return f"{grops} {self.name} ({self.count:.2f})"
+        return f"{grops} {self.name} ({self.slug})"
