@@ -9,25 +9,25 @@ from django.urls import reverse_lazy
 
 query_parmas = ["only_to_by", "group", "flat_view", "error"]
 
+
 class ItemCreateView(CreateView):
     model = CatalogItem
     fields = ["name", "group"]
-    success_url = reverse_lazy('index')
+    success_url = reverse_lazy("index")
 
     def form_valid(self, form):
         """If the form is valid, save the associated model."""
         user = self.request.user
         instance = form.instance
-        catalog_query = CatalogGroup.objects.filter(owners = user.id)
+        catalog_query = CatalogGroup.objects.filter(owners=user.id)
         instance.catalog_group = catalog_query[0]
         self.object = form.save()
         return super().form_valid(form)
 
     def get_initial(self):
-        name = self.request.GET.get('name')
-        return {
-            'name': name
-        }
+        name = self.request.GET.get("name")
+        return {"name": name}
+
 
 def encode(str_query):
     return urlencode(str_query, quote_via=quote)

@@ -54,4 +54,4 @@ class CatalogItemViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         qs = super().get_queryset()
-        return qs.filter(catalog_group__owners = user.id)
+        return qs.filter(catalog_group__owners=user.id)

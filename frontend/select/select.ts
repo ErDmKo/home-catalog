@@ -100,8 +100,7 @@ const updateOptions = (
   ctx: Window, 
   root: Element,
   data: SelectOption[],
-  actionObserver: ObserverInstance<ItemActions>,
-  inputValue: string
+  actionObserver: ObserverInstance<ItemActions>
 ) => {
   const options = data.reduce((e, option) => {
     e[option.value] = option;
@@ -136,22 +135,20 @@ const renderOptions = (
   inputValue: string
 ) => {
   const optionList = options.map((option) => optionTemplate(option, actionObserver));
-  const optionsTemplate = genTagDiv(
-    [genClass('options')], 
-    [genTagDiv([
-      genProp('style', optionStyle()),
-    ], [
-      genTagDiv([
-        genText(`Добавить новую вещь: "${inputValue}"`),
-        genProp('style', creationActionStyle),
-        genProp('onclick', () => {
-          actionObserver(next([ADD_ITEM, inputValue]));
-        }),
-      ])
-    ])
-    ].concat(optionList)
-  );
+  let content = optionList;
 
+  if (!(options.length && !options.find(option => option.label !== inputValue))) {
+    content = [genTagDiv([genProp('style', optionStyle())], [
+        genTagDiv([
+          genText(`Добавить новую вещь: "${inputValue}"`),
+          genProp('style', creationActionStyle),
+          genProp('onclick', () => {
+            actionObserver(next([ADD_ITEM, inputValue]));
+          }),
+        ])
+      ])].concat(optionList);
+  }
+  const optionsTemplate = genTagDiv([genClass('options')], content);
   cleanHtml(root);
   if (inputValue) {
     domCreator(ctx, root, optionsTemplate);
@@ -198,7 +195,7 @@ export const initSelect = (
     if (type === OPTIONS_ADD) {
       renderOptions(ctx, optionsRef, isCanceled ? [] : data, actionObserver, inputValue);
     } else if (type === OPTIONS_UPDATE) {
-      updateOptions(ctx, optionsRef, data, actionObserver, inputValue);
+      updateOptions(ctx, optionsRef, data, actionObserver)
     }
   }));
 
