@@ -1,14 +1,9 @@
 {% extends 'catalog/base.html' %}
 {% load static %}
 {% block content %}
-<h1 class="main_header">
-</h1>
 <script src="{% static 'catalog/js/bundle.js' %}"></script>
 <div>
-  <label class="search-select">
-    Поиск
-    <input type="text"/>
-  </label>
+  <label class="search-select">Search<input type="text"/></label>
 </div>
 {% if query_dict.error %}
 <div class="catalog_error">
@@ -16,32 +11,36 @@
 </div>
 {% endif %}
 {% if query_dict.group %}
-<h2 class="main_header">Группа {{ selected_group }}</h2>
+<h2 class="main_header">Group {{ selected_group }}</h2>
 {% endif %}
-<form action="">
-  Action
+
+<h2>Current action:</h2>
+
+<form class="catalog_actions" action="">
   {% for field, value in query_dict.items %}
     <input type="hidden" name="{{ field }}" value="{{ value }}">
   {% endfor %}
   {% if query_dict.only_to_by %}
-    <button name="only_to_by" value="">
+    <button class="catalog_item_button_small" name="only_to_by" value="">
       Отметить как купленное
     </button>
   {% else %}
-    <button name="only_to_by" value="1">
+    <button class="catalog_item_button_small" name="only_to_by" value="1">
       Запланировать покупку
     </button>
   {% endif %}
   {% if query_dict.flat_view %}
-    <button name="flat_view" value="">
+    <button class="catalog_item_button_small" name="flat_view" value="">
       Показать в категориях
     </button>
   {% else %}
-    <button name="flat_view" value="1">
+    <button class="catalog_item_button_small" name="flat_view" value="1">
       Раскрыть категории
     </button>
   {% endif %}
 </form>
+
+<h2>Items:</h2>
 <ul class="catalog_list">
 {% for group in groups %}
     <li class="catalog_item">
@@ -51,10 +50,10 @@
 {% for catalog_item in latest_catalog_list %}
     <li class="catalog_item">
       <form method="post" action="{% url 'update' catalog_item.id %}?{{ query }}">
-        {% csrf_token %}
         <button class="catalog_item_button" name="action">
           {{ catalog_item }}
         </button>
+        {% csrf_token %}
       </form>
     </li>
 {% endfor %}

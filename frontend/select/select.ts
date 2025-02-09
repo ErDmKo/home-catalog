@@ -76,7 +76,6 @@ const optionActionStyle = (option: SelectOption) => ({
   fontSize: FONT_SIZE_SMALL,
   color: option.to_buy ? 'red' : 'green', 
   padding: '5px 0px',
-  margin: '10px 0px 0px'
 });
 
 const optionTemplate = (option: SelectOption, actionObserver: ObserverInstance<ItemActions>) => {

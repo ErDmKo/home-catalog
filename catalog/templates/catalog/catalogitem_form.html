@@ -1,9 +1,17 @@
 {% extends 'catalog/base.html' %}
 {% load static %}
 {% block content %}
-<form method='POST'>
+<form method='POST' class="add_form">
 	{% csrf_token %}
-	{{ form.as_p }}
-	<button type="submit">Save</button>
+  {% for field in form %}
+  <div class="field_wrapper field_{{field.name}}">
+        {{ field.errors }}
+        {{ field.label_tag }}
+        {{ field }}
+    </div>
+  {% endfor %}
+  <div>
+    <button class="catalog_item_button" type="submit">Save</button>
+  </div>
 </form>
 {% endblock %}

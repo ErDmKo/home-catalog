@@ -4,11 +4,31 @@
 body {
   margin: 0px 10px;
 }
+.content_block {
+  max-width: 500px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 0 10px;
+}
+
+@media only screen and  (min-width: 900px) {
+  .content_block {
+    max-width: 100%;
+  }
+}
+
 .catalog_list {
-  padding: 20px 0px;
+  padding: 0px;
   margin: 0px;
 }
+
 .main_header a {
+  color: black;
+}
+.header a:visited {
+  color: black;
+}
+.main_header, a:visited {
   color: black;
 }
 .catalog_item {
@@ -23,25 +43,64 @@ body {
 .header {
   display: flex;
   padding: 10px 0px;
-  margin: 0px;
+  margin: 0px 0px 16px;
+  border-bottom: 1px solid rgb(204, 204, 204)
 }
 
 .header div {
   margin: 10px
+}
+.header div:first-child {
+  margin-left: 0px;
+}
+
+.add_form option {
+  padding: 10px 5px;
+}
+.add_form select {
+  margin: 10px 0px;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 19px;
+}
+
+.add_form input {
+  margin: 10px 0px;
+  padding: 10px 5px;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 19px;
+}
+.add_form label {
+  display: block;
+}
+.add_form .field_wrapper {
 }
 
 .header div:last-child { 
   margin-left: auto;
 }
 
+.catalog_actions .catalog_item_button_small {
+  margin: 10px;
+}
+
 .catalog_item_button {
   cursor: pointer;
-  margin: 0px 10px;
   font-size: 20px;
-  border: 1px solid black;
-  border-radius: 5px;
+  border: 1px solid #111;
   background: #eee;
   text-decoration: none;
   padding: 5px 10px;
+  color: black;
+}
+
+.catalog_item_button_small {
+  cursor: pointer;
+  font-size: 15px;
+  border: 1px solid #111;
+  background: #eee;
+  text-decoration: none;
+  padding: 3px 5px;
   color: black;
 }
