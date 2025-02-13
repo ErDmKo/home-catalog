@@ -2,6 +2,7 @@ from datetime import datetime
 from slugify import slugify
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 
 
 class CatalogGroup(models.Model):
@@ -44,7 +45,10 @@ class CatalogItem(models.Model):
     count = models.DecimalField(
         "Количество", default=0, max_digits=100, decimal_places=5
     )
-    pub_date = models.DateTimeField("Дата публикации", default=datetime.now)
+    pub_date = models.DateTimeField(
+        "Дата публикации",
+        default=timezone.now
+    )
     to_buy = models.BooleanField("Нужно купить", default=False)
     group = models.ManyToManyField(ItemGroup, blank=True)
 

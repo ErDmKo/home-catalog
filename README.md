@@ -1,8 +1,48 @@
-## Managment commands
+# Home Catalog
 
-### Install for develop
+A Django application for managing home inventory with categorization and tracking features.
+
+## Features
+
+- Catalog grouping and item management
+- User ownership of catalogs
+- RESTful API
+- Google OAuth authentication
+- Docker deployment support
+- Ansible automation
+
+## Development Setup
+
+1. Install uv:
+```bash
+pip install uv
+```
+
+2. Install dependencies:
 ```bash
 uv sync --all-extras
+```
+
+3. Set up the database:
+```bash
+uv run manage.py migrate
+```
+
+4. Create a superuser:
+```bash
+uv run manage.py createsuperuser
+```
+
+## Management Commands
+
+### Development Server
+```bash
+uv run manage.py compile && uv run manage.py runserver
+```
+
+### Format Code
+```bash
+uv run manage.py format
 ```
 
 ### Deploy
@@ -10,12 +50,61 @@ uv sync --all-extras
 uv run manage.py deploy
 ```
 
-### Format
+## Testing
+
+The project includes comprehensive tests for models, views, and functionality.
+
+### Using Django's test runner:
 ```bash
-uv run manage.py format
+uv run manage.py test
 ```
 
-### Develop
+### Using pytest:
 ```bash
-uv run manage.py compile && uv run manage.py runserver
+uv run pytest
 ```
+
+### With coverage report:
+```bash
+# Run tests with coverage report
+uv run manage.py test_coverage
+
+# Run tests with coverage report and generate HTML report
+uv run manage.py test_coverage --html
+```
+
+### Loading test data:
+```bash
+uv run manage.py loaddata catalog/fixtures/test_data.json
+```
+
+## Docker Operations
+
+### Building Docker image:
+```bash
+uv run manage.py build
+```
+
+### Running locally with Docker:
+```bash
+uv run manage.py docker
+```
+
+## Project Structure
+
+- `catalog/` - Main application directory
+  - `models.py` - Database models
+  - `tests.py` - Test suite
+  - `admin.py` - Admin interface configuration
+  - `management/commands/` - Custom management commands
+- `home_catalog/` - Project settings and configuration
+- `fixtures/` - Test data
+- `Dockerfile` - Docker configuration
+- `ansible/` - Deployment automation
+
+## Contributing
+
+1. Create a feature branch
+2. Make your changes
+3. Run tests to ensure everything works
+4. Submit a pull request

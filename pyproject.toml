@@ -18,4 +18,8 @@ dependencies = [
     "esbuild-py @ git+https://github.com/ErDmKo/esbuild-py@add_build_api",
     "ansible>=10.7.0",
     "ruff==0.4.4",
+    "coverage>=7.4.0",
+    "pytest>=8.0.0",
+    "pytest-django>=4.8.0",
+    "pytest-cov>=4.1.0",
   ]

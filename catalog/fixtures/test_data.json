@@ -1,0 +1,39 @@
+[
+    {
+        "model": "auth.user",
+        "pk": 1,
+        "fields": {
+            "username": "testuser",
+            "password": "pbkdf2_sha256$600000$test_hash",
+            "is_active": true
+        }
+    },
+    {
+        "model": "catalog.cataloggroup",
+        "pk": 1,
+        "fields": {
+            "name": "Kitchen",
+            "owners": [1]
+        }
+    },
+    {
+        "model": "catalog.itemgroup",
+        "pk": 1,
+        "fields": {
+            "title": "Utensils",
+            "slug": "utensils"
+        }
+    },
+    {
+        "model": "catalog.catalogitem",
+        "pk": 1,
+        "fields": {
+            "name": "Spoons",
+            "catalog_group": 1,
+            "count": 10,
+            "to_buy": false,
+            "group": [1],
+            "slug": "spoons"
+        }
+    }
+] 
