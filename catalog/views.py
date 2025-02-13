@@ -1,94 +1,132 @@
 from urllib.parse import urlencode, quote
-
+from django.views.generic import ListView, View, TemplateView
 from django.views.generic.edit import CreateView
-
-from django.shortcuts import render, redirect
-from .models import CatalogItem, ItemGroup, CatalogGroup
-from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
+from django.db.models import Q
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseBadRequest
 
-query_parmas = ["only_to_by", "group", "flat_view", "error"]
+from .models import CatalogItem, ItemGroup, CatalogGroup
 
 
-class ItemCreateView(CreateView):
+class QueryParamsMixin:
+    """Mixin to handle query parameter validation and filtering"""
+    VALID_PARAMS = {"only_to_by", "group", "flat_view", "error"}
+
+    def get_query_state(self):
+        """Get validated query parameters from request"""
+        if not hasattr(self, '_query_state'):
+            self._query_state = {
+                k: v for k, v in self.request.GET.items() 
+                if k in self.VALID_PARAMS and v
+            }
+        return self._query_state
+
+    def encode_query(self, params=None):
+        """Encode query parameters to URL string"""
+        query_dict = params if params is not None else self.get_query_state()
+        return urlencode(query_dict, quote_via=quote)
+
+    def build_item_query(self):
+        """Build query for CatalogItem filtering"""
+        query = Q(catalog_group__owners=self.request.user)
+        params = self.get_query_state()
+
+        if params.get("only_to_by"):
+            query &= Q(to_buy=True)
+        else:
+            query &= Q(to_buy=False)
+
+        if params.get("group"):
+            query &= Q(group=params["group"])
+        elif not params.get("flat_view"):
+            query &= Q(group=None)
+
+        return query
+
+    def get_groups_query(self):
+        """Build query for ItemGroup filtering"""
+        params = self.get_query_state()
+        groups = ItemGroup.objects.filter(
+            catalogitem__catalog_group__owners=self.request.user
+        ).distinct()
+
+        if params.get("only_to_by"):
+            groups = groups.filter(catalogitem__to_buy=True)
+        
+        if params.get("group") or params.get("flat_view"):
+            groups = ItemGroup.objects.none()
+
+        return groups
+
+
+class CatalogListView(LoginRequiredMixin, QueryParamsMixin, ListView):
+    model = CatalogItem
+    template_name = 'catalog/index.html'
+    context_object_name = 'latest_catalog_list'
+
+    def get_queryset(self):
+        return self.model.objects.filter(self.build_item_query())
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'query_dict': self.get_query_state(),
+            'query': self.encode_query(),
+            'groups': self.get_groups_query(),
+            'selected_group': self.get_selected_group(),
+        })
+        return context
+
+    def get_selected_group(self):
+        group_id = self.get_query_state().get('group')
+        return get_object_or_404(ItemGroup, id=group_id) if group_id else None
+
+
+class ItemCreateView(LoginRequiredMixin, CreateView):
     model = CatalogItem
     fields = ["name", "group"]
-    success_url = reverse_lazy("index")
+    success_url = reverse_lazy("catalog:index")
 
     def form_valid(self, form):
-        """If the form is valid, save the associated model."""
-        user = self.request.user
-        instance = form.instance
-        catalog_query = CatalogGroup.objects.filter(owners=user.id)
-        instance.catalog_group = catalog_query[0]
-        self.object = form.save()
+        catalog_group = CatalogGroup.objects.filter(
+            owners=self.request.user
+        ).first()
+        
+        if not catalog_group:
+            form.add_error(None, "No catalog group found for user")
+            return self.form_invalid(form)
+            
+        form.instance.catalog_group = catalog_group
         return super().form_valid(form)
 
     def get_initial(self):
-        name = self.request.GET.get("name")
-        return {"name": name}
+        return {"name": self.request.GET.get("name")}
 
 
-def encode(str_query):
-    return urlencode(str_query, quote_via=quote)
+class UpdateItemStatusView(LoginRequiredMixin, QueryParamsMixin, View):
+    """Toggle item's to_buy status"""
+    
+    def post(self, request, catalog_item_id):
+        item = get_object_or_404(
+            CatalogItem,
+            id=catalog_item_id,
+            catalog_group__owners=request.user
+        )
+        item.to_buy = not item.to_buy
+        item.save()
+
+        return redirect(f"{reverse_lazy('catalog:index')}?{self.encode_query()}")
+
+    def get(self, request, *args, **kwargs):
+        return HttpResponseBadRequest("POST method required")
 
 
-def get_query_state(request):
-    return_dict = {}
-    for param in query_parmas:
-        value = request.GET.get(param)
-        if value:
-            return_dict[param] = value
-    return return_dict
+class CatalogLoginView(TemplateView):
+    template_name = 'catalog/auth.html'
 
-
-def update(request, catalog_item_id):
-    path = reverse_lazy("index")
-    query = encode(get_query_state(request))
-    if not request.user.is_authenticated:
-        error_query = encode({"error": "not authenticated"})
-        return redirect(f"{path}?{error_query}")
-    item = CatalogItem.objects.get(id=catalog_item_id)
-    item.to_buy = not item.to_buy
-    item.save()
-    return redirect(f"{path}?{query}")
-
-
-def index(request):
-    list_query = Q(to_buy=False)
-    if not request.user.is_authenticated:
-        return render(request, "catalog/auth.html", {})
-    groups = ItemGroup.objects.filter().distinct()
-    query_dict = get_query_state(request)
-    selected_group = None
-    if query_dict.get("only_to_by"):
-        groups = ItemGroup.objects.filter(catalogitem__to_buy=True).distinct()
-        list_query = Q(to_buy=True)
-    if query_dict.get("group"):
-        groups = ItemGroup.objects.none()
-        selected_group = ItemGroup.objects.get(id=query_dict["group"])
-        list_query = list_query & Q(group=query_dict["group"])
-    elif query_dict.get("flat_view"):
-        groups = ItemGroup.objects.none()
-    else:
-        list_query = list_query & Q(group=None)
-    list_query = list_query & Q(catalog_group__owners=request.user)
-    groups = (
-        groups
-        & ItemGroup.objects.filter(
-            catalogitem__catalog_group__owners=request.user
-        ).distinct()
-    )
-    str_query = encode(query_dict)
-    return render(
-        request,
-        "catalog/index.html",
-        {
-            "query_dict": query_dict,
-            "query": str_query,
-            "fileds_to_safe": query_parmas,
-            "groups": groups,
-            "selected_group": selected_group,
-            "latest_catalog_list": CatalogItem.objects.filter(list_query),
-        },
-    )
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('catalog:index')
+        return super().dispatch(request, *args, **kwargs)

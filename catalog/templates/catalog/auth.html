@@ -1,9 +1,12 @@
-{% extends 'catalog/base.html' %}
-{% block content %}
-<h1 class="main_header"><a href="{% url 'index' %}">Каталог товаров</a></h1>
+{% extends "catalog/base.html" %}
 
-<h2>Auth needed</h2>
-{% if not request.user.is_authenticated %}
-  <a href="{% url "social:begin" "google-oauth2" %}">Login</a>
-{% endif %}
+{% block content %}
+<div class="login-container">
+    <h2>Please log in to access the catalog</h2>
+    <div class="social-login">
+        <a href="{% url 'catalog:social:begin' 'google-oauth2' %}" class="google-login-button">
+            Login with Google
+        </a>
+    </div>
+</div>
 {% endblock %}

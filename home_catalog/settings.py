@@ -159,7 +159,13 @@ AUTHENTICATION_BACKENDS = [
     "social_core.backends.google.GoogleOAuth2",
 ]
 
-LOGIN_REDIRECT_URL = "/catalog/"
+# Add this setting
+# SOCIAL_AUTH_URL_NAMESPACE = 'catalog:social'  # Update namespace to include catalog prefix
+
+LOGIN_URL = '/catalog/login/'
+LOGIN_REDIRECT_URL = '/catalog/'
+LOGOUT_REDIRECT_URL = '/catalog/'
+
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ""
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ""
 

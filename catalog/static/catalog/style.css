@@ -104,3 +104,13 @@ body {
   padding: 3px 5px;
   color: black;
 }
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-menu span {
+    color: #333;
+}

@@ -22,13 +22,17 @@
             href="{% static 'catalog/style.css' %}"/>
         {% block head %}
         <menu class="header">
-          <div><a href="{% url 'index' %}">Catalog app</a></div>
-          <div><a href="{% url 'item-add' %}">Add item</a></div>
-          <div>
+          <div><a href="{% url 'catalog:index' %}">Catalog app</a></div>
+          <div><a href="{% url 'catalog:create' %}">Add item</a></div>
+          <div class="user-menu">
             {% if not request.user.is_authenticated %}
-            <a href="{% url "social:begin" "google-oauth2" %}">login</a>
+              <a href="{% url 'catalog:social:begin' 'google-oauth2' %}" class="catalog_item_button_small">login</a>
             {% else %}
-            <span>{{request.user.email}}</span>
+              <span>{{request.user.email}}</span>
+              <form method="post" action="{% url 'catalog:logout' %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="catalog_item_button_small">logout</button>
+              </form>
             {% endif %}
           </div>
         </menu>

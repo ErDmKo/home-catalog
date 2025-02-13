@@ -1,7 +1,8 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.utils import timezone
-from .models import CatalogGroup, ItemGroup, CatalogItem
+
+from ..models import CatalogGroup, ItemGroup, CatalogItem
 
 
 class CatalogGroupTests(TestCase):
@@ -59,4 +60,4 @@ class CatalogItemTests(TestCase):
     def test_catalog_item_str(self):
         """Test the string representation of CatalogItem"""
         expected_str = '[Test Group] Test Item'
-        self.assertEqual(str(self.catalog_item), expected_str)
+        self.assertEqual(str(self.catalog_item), expected_str) 

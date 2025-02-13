@@ -49,7 +49,7 @@
 {% endfor %}
 {% for catalog_item in latest_catalog_list %}
     <li class="catalog_item">
-      <form method="post" action="{% url 'update' catalog_item.id %}?{{ query }}">
+      <form method="post" action="{% url 'catalog:update' catalog_item.id %}?{{ query }}">
         <button class="catalog_item_button" name="action">
           {{ catalog_item }}
         </button>
