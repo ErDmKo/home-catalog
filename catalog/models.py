@@ -45,10 +45,7 @@ class CatalogItem(models.Model):
     count = models.DecimalField(
         "Количество", default=0, max_digits=100, decimal_places=5
     )
-    pub_date = models.DateTimeField(
-        "Дата публикации",
-        default=timezone.now
-    )
+    pub_date = models.DateTimeField("Дата публикации", default=timezone.now)
     to_buy = models.BooleanField("Нужно купить", default=False)
     group = models.ManyToManyField(ItemGroup, blank=True)
 

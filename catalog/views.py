@@ -12,13 +12,15 @@ from .models import CatalogItem, ItemGroup, CatalogGroup
 
 class QueryParamsMixin:
     """Mixin to handle query parameter validation and filtering"""
+
     VALID_PARAMS = {"only_to_by", "group", "flat_view", "error"}
 
     def get_query_state(self):
         """Get validated query parameters from request"""
-        if not hasattr(self, '_query_state'):
+        if not hasattr(self, "_query_state"):
             self._query_state = {
-                k: v for k, v in self.request.GET.items() 
+                k: v
+                for k, v in self.request.GET.items()
                 if k in self.VALID_PARAMS and v
             }
         return self._query_state
@@ -54,7 +56,7 @@ class QueryParamsMixin:
 
         if params.get("only_to_by"):
             groups = groups.filter(catalogitem__to_buy=True)
-        
+
         if params.get("group") or params.get("flat_view"):
             groups = ItemGroup.objects.none()
 
@@ -63,24 +65,26 @@ class QueryParamsMixin:
 
 class CatalogListView(LoginRequiredMixin, QueryParamsMixin, ListView):
     model = CatalogItem
-    template_name = 'catalog/index.html'
-    context_object_name = 'latest_catalog_list'
+    template_name = "catalog/index.html"
+    context_object_name = "latest_catalog_list"
 
     def get_queryset(self):
         return self.model.objects.filter(self.build_item_query())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update({
-            'query_dict': self.get_query_state(),
-            'query': self.encode_query(),
-            'groups': self.get_groups_query(),
-            'selected_group': self.get_selected_group(),
-        })
+        context.update(
+            {
+                "query_dict": self.get_query_state(),
+                "query": self.encode_query(),
+                "groups": self.get_groups_query(),
+                "selected_group": self.get_selected_group(),
+            }
+        )
         return context
 
     def get_selected_group(self):
-        group_id = self.get_query_state().get('group')
+        group_id = self.get_query_state().get("group")
         return get_object_or_404(ItemGroup, id=group_id) if group_id else None
 
 
@@ -90,14 +94,12 @@ class ItemCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy("catalog:index")
 
     def form_valid(self, form):
-        catalog_group = CatalogGroup.objects.filter(
-            owners=self.request.user
-        ).first()
-        
+        catalog_group = CatalogGroup.objects.filter(owners=self.request.user).first()
+
         if not catalog_group:
             form.add_error(None, "No catalog group found for user")
             return self.form_invalid(form)
-            
+
         form.instance.catalog_group = catalog_group
         return super().form_valid(form)
 
@@ -107,12 +109,10 @@ class ItemCreateView(LoginRequiredMixin, CreateView):
 
 class UpdateItemStatusView(LoginRequiredMixin, QueryParamsMixin, View):
     """Toggle item's to_buy status"""
-    
+
     def post(self, request, catalog_item_id):
         item = get_object_or_404(
-            CatalogItem,
-            id=catalog_item_id,
-            catalog_group__owners=request.user
+            CatalogItem, id=catalog_item_id, catalog_group__owners=request.user
         )
         item.to_buy = not item.to_buy
         item.save()
@@ -124,9 +124,9 @@ class UpdateItemStatusView(LoginRequiredMixin, QueryParamsMixin, View):
 
 
 class CatalogLoginView(TemplateView):
-    template_name = 'catalog/auth.html'
+    template_name = "catalog/auth.html"
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('catalog:index')
+            return redirect("catalog:index")
         return super().dispatch(request, *args, **kwargs)
