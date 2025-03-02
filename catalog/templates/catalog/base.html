@@ -23,7 +23,7 @@
         {% block head %}
         <menu class="header">
           <div><a href="{% url 'catalog:index' %}">Catalog app</a></div>
-          <div><a href="{% url 'catalog:create' %}">Add item</a></div>
+          <div><a id="create-action" href="{% url 'catalog:create' %}">Add item</a></div>
           <div class="user-menu">
             {% if not request.user.is_authenticated %}
               <a href="{% url 'catalog:social:begin' 'google-oauth2' %}" class="catalog_item_button_small">login</a>

@@ -10,9 +10,6 @@
   {{ query_dict.error }}
 </div>
 {% endif %}
-{% if query_dict.group %}
-<h2 class="main_header">Group {{ selected_group }}</h2>
-{% endif %}
 
 <h2>Current action:</h2>
 
@@ -39,6 +36,11 @@
     </button>
   {% endif %}
 </form>
+
+{% if query_dict.group %}
+<h2 class="main_header">Group: {{ selected_group }}</h2>
+<a href="{% url 'catalog:index' %}?{{ query }}&group=" class="catalog_item_button_small">Exit from group</a>
+{% endif %}
 
 <h2>Items:</h2>
 <ul class="catalog_list">

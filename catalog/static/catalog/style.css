@@ -74,8 +74,6 @@ body {
 .add_form label {
   display: block;
 }
-.add_form .field_wrapper {
-}
 
 .header div:last-child { 
   margin-left: auto;

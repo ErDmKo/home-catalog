@@ -20,13 +20,13 @@ export const intSelect = (ctx: Window, selector: string) => {
   asserFalsy(label, DOM_ERROR);
   const input = label.querySelector('input');
   asserFalsy(input, DOM_ERROR);
-
+  const addUrl = document.querySelector('#create-action');
   const [inputObserver, dataObserver, actionObserver] = initSelect(ctx, input, label);
 
   actionObserver(subscribe((action) => {
     const [actionType, value] = action;
     if (actionType === ADD_ITEM) {
-      ctx.location.href = `/catalog/item/add?name=${value}`
+      ctx.location.href = `${addUrl}?name=${value}`
     }
     if ([TO_BUY, NOT_BUY].includes(actionType)) {
       const pk = Number(value);
