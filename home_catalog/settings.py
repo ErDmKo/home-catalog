@@ -159,10 +159,10 @@ AUTHENTICATION_BACKENDS = [
     "social_core.backends.google.GoogleOAuth2",
 ]
 
-LOGIN_URL = '/catalog/login/'
-LOGIN_REDIRECT_URL = '/catalog/'
-LOGOUT_REDIRECT_URL = '/catalog/'
-SOCIAL_AUTH_URL_NAMESPACE = 'catalog:social'
+LOGIN_URL = "/catalog/login/"
+LOGIN_REDIRECT_URL = "/catalog/"
+LOGOUT_REDIRECT_URL = "/catalog/"
+SOCIAL_AUTH_URL_NAMESPACE = "catalog:social"
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ""
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ""
