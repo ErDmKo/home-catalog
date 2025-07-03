@@ -1,4 +1,5 @@
 version = 1
+revision = 1
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.11'",
@@ -429,7 +430,7 @@ wheels = [
 [[package]]
 name = "esbuild-py"
 version = "0.1.5"
-source = { git = "https://github.com/ErDmKo/esbuild-py?rev=add_build_api#13598b04f5686dfeefa69bc361735e9ce6d81ae8" }
+source = { git = "https://github.com/ErDmKo/esbuild-py?rev=main#ac396509e562f4c1a80ed6611d0b2430e7217d12" }
 
 [[package]]
 name = "exceptiongroup"
@@ -474,7 +475,7 @@ requires-dist = [
     { name = "django", specifier = "==5.0.4" },
     { name = "django-filter", specifier = ">=24.3" },
     { name = "djangorestframework", specifier = ">=3.15.2" },
-    { name = "esbuild-py", marker = "extra == 'develop'", git = "https://github.com/ErDmKo/esbuild-py?rev=add_build_api" },
+    { name = "esbuild-py", marker = "extra == 'develop'", git = "https://github.com/ErDmKo/esbuild-py?rev=main" },
     { name = "pytest", marker = "extra == 'develop'", specifier = ">=8.0.0" },
     { name = "pytest-cov", marker = "extra == 'develop'", specifier = ">=4.1.0" },
     { name = "pytest-django", marker = "extra == 'develop'", specifier = ">=4.8.0" },
@@ -483,6 +484,7 @@ requires-dist = [
     { name = "social-auth-app-django", specifier = "==5.4.2" },
     { name = "whitenoise", specifier = "==6.6.0" },
 ]
+provides-extras = ["develop"]
 
 [[package]]
 name = "hyperlink"

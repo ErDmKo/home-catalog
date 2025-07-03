@@ -15,7 +15,7 @@ dependencies = [
 ]
 [project.optional-dependencies]
   develop = [
-    "esbuild-py @ git+https://github.com/ErDmKo/esbuild-py@add_build_api",
+    "esbuild-py @ git+https://github.com/ErDmKo/esbuild-py@main",
     "ansible>=10.7.0",
     "ruff==0.4.4",
     "coverage>=7.4.0",
