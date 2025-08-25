@@ -15,7 +15,7 @@ dependencies = [
 ]
 [project.optional-dependencies]
   develop = [
-    "esbuild-py @ git+https://github.com/ErDmKo/esbuild-py@main",
+    "esbuild-py",
     "ansible>=10.7.0",
     "ruff==0.4.4",
     "coverage>=7.4.0",
@@ -23,3 +23,5 @@ dependencies = [
     "pytest-django>=4.8.0",
     "pytest-cov>=4.1.0",
   ]
+[tool.uv.sources]
+esbuild-py = { git = "https://github.com/ErDmKo/esbuild-py", rev = "ed72d4775bb5aa2694acf42a604470dc54c6c8d5" }
