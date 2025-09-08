@@ -6,6 +6,7 @@ A Django application for managing home inventory with categorization and trackin
 
 - Catalog grouping and item management
 - User ownership of catalogs
+- Invitation system for sharing catalogs
 - RESTful API
 - Google OAuth authentication
 - Docker deployment support
@@ -54,8 +55,9 @@ uv run manage.py deploy
 
 The project includes comprehensive tests for models, views, and functionality.
 
-Before running the tests, make sure to collect the static files:
+Before running the tests, make sure your database schema is up-to-date and static files are collected:
 ```bash
+uv run manage.py migrate
 uv run manage.py collectstatic
 ```
 

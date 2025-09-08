@@ -11,6 +11,7 @@ app_name = "catalog"
 router = routers.DefaultRouter()
 router.register(r"items", api_views.CatalogItemViewSet)
 router.register(r"groups", api_views.CatalogGroupViewSet)
+router.register(r"invitations", api_views.InvitationViewSet, basename="invitation")
 
 urlpatterns = [
     path("", views.CatalogListView.as_view(), name="index"),

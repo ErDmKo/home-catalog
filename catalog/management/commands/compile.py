@@ -8,7 +8,10 @@ class Command(BaseCommand):
     help = "Compile typesctiprt app to static"
 
     def compile_cmd(self):
-        build(entry_points=["./frontend/index.ts"], outfile="./catalog/static/catalog/js/bundle.js")
+        build(
+            entry_points=["./frontend/index.ts"],
+            outfile="./catalog/static/catalog/js/bundle.js",
+        )
 
     def handle(self, *args, **options):
         self.compile_cmd()

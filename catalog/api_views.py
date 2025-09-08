@@ -1,10 +1,26 @@
-from rest_framework import viewsets, filters, permissions
+from rest_framework import viewsets, filters, permissions, status, mixins
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField
 from django.utils.text import smart_split, unescape_string_literal
+from django.utils import timezone
+from datetime import timedelta
+from django.conf import settings
+from django.db import transaction
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
-from .models import CatalogItem, slugify_function, CatalogGroup
-from .serializers import CatalogItemSerializer, CatalogGroupSerializer
+from .models import (
+    CatalogItem,
+    slugify_function,
+    CatalogGroup,
+    CatalogGroupInvitation,
+)
+
+from .serializers import (
+    CatalogItemSerializer,
+    CatalogGroupSerializer,
+    CatalogGroupInvitationSerializer,
+)
 
 
 def search_smart_split(search_terms):
@@ -64,6 +80,15 @@ class CatalogGroupViewSet(viewsets.ModelViewSet):
         instance = serializer.save()
         instance.owners.add(user)
 
+    @action(detail=True, methods=["post"], url_path="create-invitation")
+    def create_invitation(self, request, pk=None):
+        catalog_group = self.get_object()
+        invitation = CatalogGroupInvitation.objects.create(
+            catalog_group=catalog_group, invited_by=request.user
+        )
+        serializer = CatalogGroupInvitationSerializer(invitation)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 class CatalogItemViewSet(viewsets.ModelViewSet):
     """
@@ -80,3 +105,58 @@ class CatalogItemViewSet(viewsets.ModelViewSet):
         user = self.request.user
         qs = super().get_queryset()
         return qs.filter(catalog_group__owners=user.id)
+
+
+class InvitationViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
+    queryset = CatalogGroupInvitation.objects.all()
+    serializer_class = CatalogGroupInvitationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    @action(detail=True, methods=["post"])
+    @transaction.atomic
+    def accept(self, request, pk=None):
+        invitation = self.get_object()
+        user = request.user
+        accept_and_leave = request.data.get("accept_and_leave", False)
+
+        # 1. Check if invitation is still valid
+        if invitation.accepted_by:
+            return Response(
+                {"error": "This invitation has already been accepted."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # 2. Check for TTL expiration
+        expiration_date = invitation.created_at + timedelta(
+            days=settings.INVITATION_EXPIRATION_DAYS
+        )
+        if timezone.now() > expiration_date:
+            return Response(
+                {"error": "This invitation has expired."},
+                status=status.HTTP_410_GONE,
+            )
+
+        # 3. Handle user with an existing catalog
+        existing_group = CatalogGroup.objects.filter(owners=user).first()
+        if existing_group and not user.is_superuser:
+            if not accept_and_leave:
+                return Response(
+                    {
+                        "code": "CATALOG_OWNERSHIP_CONFLICT",
+                        "error": "You already own a catalog. To join a new one, you must leave your current one.",
+                        "conflicting_catalog_name": existing_group.name,
+                    },
+                    status=status.HTTP_409_CONFLICT,
+                )
+            # User confirmed leaving their old group
+            existing_group.owners.remove(user)
+
+        # 4. Add user to the new group and update invitation
+        invitation.catalog_group.owners.add(user)
+        invitation.accepted_by = user
+        invitation.save()
+
+        return Response(
+            {"status": f"Successfully joined {invitation.catalog_group.name}."},
+            status=status.HTTP_200_OK,
+        )

@@ -2,6 +2,7 @@ from slugify import slugify
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
+import uuid
 
 
 class CatalogGroup(models.Model):
@@ -62,3 +63,24 @@ class CatalogItem(models.Model):
     def __str__(self):
         grops = "".join([f"[{group.title}]" for group in self.group.all()])
         return f"{grops} {self.name}"
+
+
+class CatalogGroupInvitation(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    catalog_group = models.ForeignKey(
+        CatalogGroup, on_delete=models.CASCADE, related_name="invitations"
+    )
+    invited_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="sent_invitations"
+    )
+    accepted_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="accepted_invitations",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)  # For TTL
+
+    def __str__(self):
+        return f"Invitation to {self.catalog_group.name} by {self.invited_by.username}"
