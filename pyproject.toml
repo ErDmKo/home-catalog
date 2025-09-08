@@ -24,4 +24,4 @@ dependencies = [
     "pytest-cov>=4.1.0",
   ]
 [tool.uv.sources]
-esbuild-py = { git = "https://github.com/ErDmKo/esbuild-py", rev = "ed72d4775bb5aa2694acf42a604470dc54c6c8d5" }
+esbuild-py = { git = "https://github.com/ErDmKo/esbuild-py", rev = "8356ba76d160bd7c928eb5f82c1bc3f23e12eae0" }

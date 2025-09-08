@@ -430,7 +430,7 @@ wheels = [
 [[package]]
 name = "esbuild-py"
 version = "0.1.5"
-source = { git = "https://github.com/ErDmKo/esbuild-py?rev=ed72d4775bb5aa2694acf42a604470dc54c6c8d5#ed72d4775bb5aa2694acf42a604470dc54c6c8d5" }
+source = { git = "https://github.com/ErDmKo/esbuild-py?rev=8356ba76d160bd7c928eb5f82c1bc3f23e12eae0#8356ba76d160bd7c928eb5f82c1bc3f23e12eae0" }
 dependencies = [
     { name = "wasmtime" },
 ]
@@ -478,7 +478,7 @@ requires-dist = [
     { name = "django", specifier = "==5.0.4" },
     { name = "django-filter", specifier = ">=24.3" },
     { name = "djangorestframework", specifier = ">=3.15.2" },
-    { name = "esbuild-py", marker = "extra == 'develop'", git = "https://github.com/ErDmKo/esbuild-py?rev=ed72d4775bb5aa2694acf42a604470dc54c6c8d5" },
+    { name = "esbuild-py", marker = "extra == 'develop'", git = "https://github.com/ErDmKo/esbuild-py?rev=8356ba76d160bd7c928eb5f82c1bc3f23e12eae0" },
     { name = "pytest", marker = "extra == 'develop'", specifier = ">=8.0.0" },
     { name = "pytest-cov", marker = "extra == 'develop'", specifier = ">=4.1.0" },
     { name = "pytest-django", marker = "extra == 'develop'", specifier = ">=4.8.0" },
