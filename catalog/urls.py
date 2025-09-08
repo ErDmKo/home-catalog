@@ -1,5 +1,4 @@
 from django.urls import path, include
-from django.contrib.auth.decorators import login_required
 from rest_framework import routers
 from django.contrib.auth import views as auth_views
 
@@ -11,6 +10,7 @@ app_name = "catalog"
 
 router = routers.DefaultRouter()
 router.register(r"items", api_views.CatalogItemViewSet)
+router.register(r"groups", api_views.CatalogGroupViewSet)
 
 urlpatterns = [
     path("", views.CatalogListView.as_view(), name="index"),

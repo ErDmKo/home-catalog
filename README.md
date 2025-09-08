@@ -54,6 +54,11 @@ uv run manage.py deploy
 
 The project includes comprehensive tests for models, views, and functionality.
 
+Before running the tests, make sure to collect the static files:
+```bash
+uv run manage.py collectstatic
+```
+
 ### Using Django's test runner:
 ```bash
 uv run manage.py test

@@ -1,13 +1,10 @@
-from functools import reduce
-import operator
-
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, permissions
+from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField
-from django.db import models
 from django.utils.text import smart_split, unescape_string_literal
 
-from .models import CatalogItem, ItemGroup, slugify_function, CatalogGroup
-from .serializers import CatalogItemSerializer
+from .models import CatalogItem, slugify_function, CatalogGroup
+from .serializers import CatalogItemSerializer, CatalogGroupSerializer
 
 
 def search_smart_split(search_terms):
@@ -28,6 +25,14 @@ def search_smart_split(search_terms):
     return split_terms
 
 
+class IsOwnerOrAdmin(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return request.user in obj.owners.all() or request.user.is_superuser
+
+
 class MyBackend(filters.SearchFilter):
     def get_search_terms(self, request):
         """
@@ -41,6 +46,25 @@ class MyBackend(filters.SearchFilter):
         return search_smart_split(cleaned_value)
 
 
+class CatalogGroupViewSet(viewsets.ModelViewSet):
+    queryset = CatalogGroup.objects.all()
+    serializer_class = CatalogGroupSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrAdmin]
+
+    def get_queryset(self):
+        user = self.request.user
+        if self.action == "list" and not user.is_superuser:
+            return super().get_queryset().filter(owners=user)
+        return super().get_queryset()
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        if not user.is_superuser and CatalogGroup.objects.filter(owners=user).exists():
+            raise ValidationError("You can only have one catalog group.")
+        instance = serializer.save()
+        instance.owners.add(user)
+
+
 class CatalogItemViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows catalog items to be managed (view, careate, delete)
@@ -50,6 +74,7 @@ class CatalogItemViewSet(viewsets.ModelViewSet):
     serializer_class = CatalogItemSerializer
     filter_backends = [MyBackend]
     search_fields = ["slug", "group__slug"]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
