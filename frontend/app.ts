@@ -16,11 +16,11 @@ const itemToOption = (option: CatalogItem): SelectOption => {
 };
 
 export const intSelect = (ctx: Window, selector: string) => {
-  const label = document.querySelector(selector);
+  const label = ctx.document.querySelector(selector);
   asserFalsy(label, DOM_ERROR);
   const input = label.querySelector('input');
   asserFalsy(input, DOM_ERROR);
-  const addUrl = document.querySelector('#create-action');
+  const addUrl = ctx.document.querySelector('#create-action');
   const [inputObserver, dataObserver, actionObserver] = initSelect(ctx, input, label);
 
   actionObserver(subscribe((action) => {

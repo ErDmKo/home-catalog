@@ -107,6 +107,13 @@ class ItemCreateView(LoginRequiredMixin, CreateView):
         return {"name": self.request.GET.get("name")}
 
 
+class ItemGroupCreateView(LoginRequiredMixin, CreateView):
+    model = ItemGroup
+    fields = ["title"]
+    success_url = reverse_lazy("catalog:index")
+    template_name = "catalog/itemgroup_form.html"
+
+
 class UpdateItemStatusView(LoginRequiredMixin, QueryParamsMixin, View):
     """Toggle item's to_buy status"""
 
