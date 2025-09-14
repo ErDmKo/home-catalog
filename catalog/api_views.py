@@ -11,6 +11,7 @@ from rest_framework.response import Response
 
 from .models import (
     CatalogItem,
+    slugify_function,
     CatalogGroup,
     CatalogGroupInvitation,
 )

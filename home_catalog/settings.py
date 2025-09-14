@@ -180,6 +180,6 @@ REST_FRAMEWORK = {
 }
 
 try:
-    from .local_settings import *
+    from .local_settings import *  # noqa: F403
 except ImportError:
     pass

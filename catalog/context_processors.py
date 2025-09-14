@@ -1,4 +1,3 @@
-
 def catalog_context(request):
     """
     Adds the user's catalog group to the template context if they are

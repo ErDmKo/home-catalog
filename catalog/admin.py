@@ -9,7 +9,7 @@ class ItemGroupAdmin(admin.ModelAdmin):
 
 
 @admin.register(CatalogGroup)
-class ItemGroupAdmin(admin.ModelAdmin):
+class CatalogGroupAdmin(admin.ModelAdmin):
     pass
 
 

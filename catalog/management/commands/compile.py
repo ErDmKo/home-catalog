@@ -1,6 +1,4 @@
-from django.core.management.base import BaseCommand, CommandError
-from django.utils import autoreload
-import subprocess
+from django.core.management.base import BaseCommand
 from esbuild_py import build
 
 

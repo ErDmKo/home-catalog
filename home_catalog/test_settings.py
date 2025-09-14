@@ -1,4 +1,4 @@
-from .settings import *
+from .settings import *  # noqa: F403
 
 # Use an in-memory SQLite database for testing
 DATABASES = {

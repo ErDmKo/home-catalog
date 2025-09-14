@@ -41,9 +41,14 @@ uv run manage.py createsuperuser
 uv run manage.py compile && uv run manage.py runserver
 ```
 
-### Format Code
+### Format and Lint Code
 ```bash
 uv run manage.py format
+```
+
+To automatically fix any fixable linting errors, run:
+```bash
+uv run manage.py format --fix
 ```
 
 ### Deploy

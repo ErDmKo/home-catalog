@@ -1,13 +1,11 @@
-from django.core.management.base import BaseCommand, CommandError
-from subprocess import run, PIPE, STDOUT, Popen
-import os
+from django.core.management.base import BaseCommand
+from subprocess import run, PIPE
 
 
 class Command(BaseCommand):
     help = "Runs a docker image.tar localy"
 
     def handle(self, *args, **options):
-        PROJECT_NAME = "home_catalog"
         run(["./manage.py", "build"])
         docker_args = [
             "docker",
@@ -18,4 +16,4 @@ class Command(BaseCommand):
             "home_catalog",
         ]
         run(docker_args, stdout=PIPE, bufsize=0)
-        self.stdout.write(self.style.SUCCESS(f"Run is finished"))
+        self.stdout.write(self.style.SUCCESS("Run is finished"))
