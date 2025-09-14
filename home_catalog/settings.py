@@ -58,6 +58,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "catalog.middleware.CatalogGroupMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "catalog.middleware.RedirectToCreateCatalogMiddleware",
 ]
 
 ROOT_URLCONF = "home_catalog.urls"

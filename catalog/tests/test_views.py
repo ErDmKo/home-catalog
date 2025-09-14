@@ -150,17 +150,7 @@ class ItemCreateViewTests(TestCase):
         self.catalog_group.delete()
         self.client.request().catalog_group = None  # Simulate no catalog group
         response = self.client.post(reverse("catalog:create"), {"name": "New Item"})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(CatalogItem.objects.count(), 0)
-
-        # Check for error message in response content
-        self.assertContains(response, "No catalog group found for user")
-
-        # Also check that it's in the form errors
-        self.assertIn(
-            "No catalog group found for user",
-            response.context["form"].non_field_errors(),
-        )
+        self.assertRedirects(response, reverse("catalog:create-catalog-group"))
 
     def test_create_with_group(self):
         """Test creating an item with a group"""
@@ -204,8 +194,16 @@ class CatalogLoginViewTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", password="12345")
 
-    def test_redirects_authenticated_user(self):
-        """Test that authenticated users are redirected to index"""
+    def test_redirect_authenticated_user_without_catalog(self):
+        """Test that authenticated users without a catalog are redirected to the create catalog page"""
+        self.client.login(username="testuser", password="12345")
+        response = self.client.get(reverse("catalog:login"))
+        self.assertRedirects(response, reverse("catalog:create-catalog-group"))
+
+    def test_redirect_authenticated_user_with_catalog(self):
+        """Test that authenticated users with a catalog are redirected to the index page"""
+        catalog_group = CatalogGroup.objects.create(name="Test Catalog")
+        catalog_group.owners.add(self.user)
         self.client.login(username="testuser", password="12345")
         response = self.client.get(reverse("catalog:login"))
         self.assertRedirects(response, reverse("catalog:index"))
