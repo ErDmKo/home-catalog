@@ -22,8 +22,17 @@
             href="{% static 'catalog/style.css' %}"/>
         {% block head %}
         <menu class="header">
-          <div><a href="{% url 'catalog:index' %}">Catalog app</a></div>
+          <div>
+            <a href="{% url 'catalog:index' %}">
+              {% if current_catalog_group %}
+                {{ current_catalog_group.name }}
+              {% else %}
+                Catalog app
+              {% endif %}
+            </a>
+          </div>
           <div><a id="create-action" href="{% url 'catalog:create' %}">Add item</a></div>
+          <div><a id="create-catalog-group-action" href="{% url 'catalog:create-catalog-group' %}">Add Catalog</a></div>
           <div><a id="create-group-action" href="{% url 'catalog:create-group' %}">Add group</a></div>
           <div class="user-menu">
             {% if not request.user.is_authenticated %}

@@ -16,6 +16,11 @@ router.register(r"invitations", api_views.InvitationViewSet, basename="invitatio
 urlpatterns = [
     path("", views.CatalogListView.as_view(), name="index"),
     path("create/", views.ItemCreateView.as_view(), name="create"),
+    path(
+        "create-catalog-group/",
+        views.CatalogGroupCreateView.as_view(),
+        name="create-catalog-group",
+    ),
     path("create-group/", views.ItemGroupCreateView.as_view(), name="create-group"),
     path("api/", include(router.urls)),
     path("social-auth/", include("social_django.urls", namespace="social")),

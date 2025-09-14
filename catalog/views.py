@@ -94,17 +94,32 @@ class ItemCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy("catalog:index")
 
     def form_valid(self, form):
-        catalog_group = CatalogGroup.objects.filter(owners=self.request.user).first()
-
-        if not catalog_group:
+        if not self.request.catalog_group:
             form.add_error(None, "No catalog group found for user")
             return self.form_invalid(form)
 
-        form.instance.catalog_group = catalog_group
+        form.instance.catalog_group = self.request.catalog_group
         return super().form_valid(form)
 
     def get_initial(self):
         return {"name": self.request.GET.get("name")}
+
+
+class CatalogGroupCreateView(LoginRequiredMixin, CreateView):
+    model = CatalogGroup
+    fields = ["name"]
+    template_name = "catalog/cataloggroup_form.html"
+    success_url = reverse_lazy("catalog:index")
+
+    def form_valid(self, form):
+        user = self.request.user
+        if not user.is_superuser and self.request.catalog_group:
+            form.add_error(None, "You can only have one catalog group.")
+            return self.form_invalid(form)
+
+        response = super().form_valid(form)
+        self.object.owners.add(user)
+        return response
 
 
 class ItemGroupCreateView(LoginRequiredMixin, CreateView):

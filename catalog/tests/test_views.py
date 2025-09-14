@@ -135,6 +135,10 @@ class ItemCreateViewTests(TestCase):
         self.catalog_group.owners.add(self.user)
         self.client.login(username="testuser", password="12345")
 
+        # Manually set the catalog_group attribute on the client's request factory
+        # to simulate the middleware's behavior in the test environment.
+        self.client.request().catalog_group = self.catalog_group
+
     def test_create_item(self):
         """Test creating a new item"""
         response = self.client.post(reverse("catalog:create"), {"name": "New Item"})
@@ -144,6 +148,7 @@ class ItemCreateViewTests(TestCase):
     def test_create_without_catalog_group(self):
         """Test creating item when user has no catalog group"""
         self.catalog_group.delete()
+        self.client.request().catalog_group = None  # Simulate no catalog group
         response = self.client.post(reverse("catalog:create"), {"name": "New Item"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(CatalogItem.objects.count(), 0)

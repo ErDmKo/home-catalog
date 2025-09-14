@@ -77,8 +77,7 @@ class CatalogGroupViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if not user.is_superuser and CatalogGroup.objects.filter(owners=user).exists():
             raise ValidationError("You can only have one catalog group.")
-        instance = serializer.save()
-        instance.owners.add(user)
+        serializer.save(owners=[user])
 
     @action(detail=True, methods=["post"], url_path="create-invitation")
     def create_invitation(self, request, pk=None):
