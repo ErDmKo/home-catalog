@@ -1,5 +1,3 @@
-from .models import CatalogGroup
-
 
 def catalog_context(request):
     """
