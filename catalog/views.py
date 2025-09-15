@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseBadRequest
-
+from django import forms
 from .models import ItemDefinition, CatalogEntry, ItemGroup, CatalogGroup
 
 
@@ -88,6 +88,12 @@ class CatalogListView(LoginRequiredMixin, QueryParamsMixin, ListView):
         return get_object_or_404(ItemGroup, id=group_id) if group_id else None
 
 
+class ItemDefinitionCreateView(LoginRequiredMixin, CreateView):
+    model = ItemDefinition
+    fields = ["name", "group"]
+    success_url = reverse_lazy("catalog:index")
+
+
 class EntryCreateView(LoginRequiredMixin, CreateView):
     model = CatalogEntry
     fields = ["item_definition"]
@@ -100,14 +106,6 @@ class EntryCreateView(LoginRequiredMixin, CreateView):
 
         form.instance.catalog_group = self.request.catalog_group
         return super().form_valid(form)
-
-    def get_initial(self):
-        initial = super().get_initial()
-        item_name = self.request.GET.get("name")
-        if item_name:
-            item_def, _ = ItemDefinition.objects.get_or_create(name=item_name)
-            initial['item_definition'] = item_def
-        return initial
 
 
 class CatalogGroupCreateView(LoginRequiredMixin, CreateView):

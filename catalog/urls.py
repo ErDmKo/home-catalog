@@ -18,6 +18,11 @@ urlpatterns = [
     path("", views.CatalogListView.as_view(), name="index"),
     path("create/", views.EntryCreateView.as_view(), name="create"),
     path(
+        "create-item-definition/",
+        views.ItemDefinitionCreateView.as_view(),
+        name="create-item-definition",
+    ),
+    path(
         "create-catalog-group/",
         views.CatalogGroupCreateView.as_view(),
         name="create-catalog-group",

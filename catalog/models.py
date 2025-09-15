@@ -18,8 +18,8 @@ class CatalogGroup(models.Model):
 
 
 class ItemGroup(models.Model):
-    title = models.CharField("Group Name", max_length=200)
-    slug = models.SlugField("slug", default="-")
+    title = models.CharField("Group Name", max_length=200, unique=True)
+    slug = models.SlugField("slug", default="-", unique=True)
 
     def __str__(self):
         return f"{self.title}"

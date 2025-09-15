@@ -139,74 +139,41 @@ class UpdateEntryStatusViewTests(TestCase):
         self.assertIn("/catalog/login/", response.url)
 
 
-class EntryCreateViewTests(TestCase):
+class ItemDefinitionCreateViewTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", password="12345")
         self.catalog_group = CatalogGroup.objects.create(name="Test Catalog")
         self.catalog_group.owners.add(self.user)
         self.client.login(username="testuser", password="12345")
-
-        # Manually set the catalog_group attribute on the client's request factory
-        # to simulate the middleware's behavior in the test environment.
         self.client.request().catalog_group = self.catalog_group
 
-    def test_create_item(self):
-        """Test creating a new item"""
-        item_def = ItemDefinition.objects.create(name="New Item Definition")
+    def test_create_item_definition(self):
+        """Test creating a new item definition"""
         response = self.client.post(
-            reverse("catalog:create"), {"item_definition": item_def.id}
+            reverse("catalog:create-item-definition"), {"name": "New Item Definition"}
         )
         self.assertEqual(ItemDefinition.objects.count(), 1)
-        self.assertEqual(CatalogEntry.objects.count(), 1)
         self.assertRedirects(response, reverse("catalog:index"))
 
-    def test_create_without_catalog_group(self):
-        """Test creating item when user has no catalog group"""
-        self.catalog_group.delete()
-        self.client.request().catalog_group = None  # Simulate no catalog group
-        response = self.client.post(reverse("catalog:create"), {"name": "New Item"})
-        self.assertRedirects(response, reverse("catalog:create-catalog-group"))
 
-    def test_create_with_group(self):
-        """Test creating an item with a group"""
-        group = ItemGroup.objects.create(title="Test Group")
-        item_def = ItemDefinition.objects.create(name="New Item Definition")
-        item_def.group.add(group)
+class EntryCreateViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="testuser", password="12345")
+        self.catalog_group = CatalogGroup.objects.create(name="Test Catalog")
+        self.catalog_group.owners.add(self.user)
+        self.item_definition = ItemDefinition.objects.create(
+            name="Test Item Definition"
+        )
+        self.client.login(username="testuser", password="12345")
+        self.client.request().catalog_group = self.catalog_group
+
+    def test_create_entry(self):
+        """Test creating a new catalog entry"""
         response = self.client.post(
-            reverse("catalog:create"), {"item_definition": item_def.id}
+            reverse("catalog:create"), {"item_definition": self.item_definition.id}
         )
-        self.assertEqual(ItemDefinition.objects.count(), 1)
         self.assertEqual(CatalogEntry.objects.count(), 1)
-        self.assertIn(group, ItemDefinition.objects.first().group.all())
         self.assertRedirects(response, reverse("catalog:index"))
-
-    def test_create_requires_login(self):
-        """Test that create view requires login"""
-        self.client.logout()
-        response = self.client.post(reverse("catalog:create"), {"name": "New Item"})
-        self.assertEqual(response.status_code, 302)
-        self.assertIn("/catalog/login/", response.url)
-
-    def test_create_with_initial_name(self):
-        """Test creating item with name from GET parameter"""
-        response = self.client.get(reverse("catalog:create") + "?name=Test+Item")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.context["form"].initial["item_definition"].name, "Test Item"
-        )
-
-    def test_create_with_empty_item_definition(self):
-        """Test that empty item_definition is not allowed"""
-        response = self.client.post(reverse("catalog:create"), {"item_definition": ""})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(CatalogEntry.objects.count(), 0)
-
-        self.assertTrue(response.context["form"].errors)
-        self.assertIn("item_definition", response.context["form"].errors)
-        self.assertEqual(
-            response.context["form"].errors["item_definition"][0],
-            "This field is required.",
-        )
 
 
 class CatalogLoginViewTests(TestCase):

@@ -31,7 +31,8 @@
               {% endif %}
             </a>
           </div>
-          <div><a id="create-action" href="{% url 'catalog:create' %}">Items</a></div>
+          <div><a href="{% url 'catalog:create-item-definition' %}">Items</a></div>
+          <div><a id="create-action" href="{% url 'catalog:create' %}">Entries</a></div>
           <div><a id="create-catalog-group-action" href="{% url 'catalog:create-catalog-group' %}">Catalogs</a></div>
           <div><a id="create-group-action" href="{% url 'catalog:create-group' %}">Groups</a></div>
           <div class="user-menu">
