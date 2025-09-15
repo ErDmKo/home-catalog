@@ -9,13 +9,14 @@ from . import api_views
 app_name = "catalog"
 
 router = routers.DefaultRouter()
-router.register(r"items", api_views.CatalogItemViewSet)
+router.register(r"item-definitions", api_views.ItemDefinitionViewSet)
+router.register(r"catalog-entries", api_views.CatalogEntryViewSet)
 router.register(r"groups", api_views.CatalogGroupViewSet)
 router.register(r"invitations", api_views.InvitationViewSet, basename="invitation")
 
 urlpatterns = [
     path("", views.CatalogListView.as_view(), name="index"),
-    path("create/", views.ItemCreateView.as_view(), name="create"),
+    path("create/", views.EntryCreateView.as_view(), name="create"),
     path(
         "create-catalog-group/",
         views.CatalogGroupCreateView.as_view(),
@@ -25,8 +26,8 @@ urlpatterns = [
     path("api/", include(router.urls)),
     path("social-auth/", include("social_django.urls", namespace="social")),
     path(
-        "update/<int:catalog_item_id>/",
-        views.UpdateItemStatusView.as_view(),
+        "update/<int:entry_id>/",
+        views.UpdateEntryStatusView.as_view(),
         name="update",
     ),
     path(

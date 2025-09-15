@@ -1,7 +1,7 @@
 from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User
 
-from ..models import CatalogGroup, ItemGroup, CatalogItem
+from ..models import CatalogGroup, ItemGroup, ItemDefinition, CatalogEntry
 from ..views import QueryParamsMixin
 
 
@@ -13,12 +13,13 @@ class QueryParamsMixinTests(TestCase):
         self.catalog_group.owners.add(self.user)
         self.group = ItemGroup.objects.create(title="Test Group")
 
-        # Create item first, then add group
-        self.item = CatalogItem.objects.create(
-            name="Test Item",
+        self.item_definition = ItemDefinition.objects.create(name="Test Item Definition")
+        self.item_definition.group.add(self.group)
+
+        self.entry = CatalogEntry.objects.create(
+            item_definition=self.item_definition,
             catalog_group=self.catalog_group,
         )
-        self.item.group.add(self.group)  # Add group through the m2m relationship
 
     def test_get_query_state_filters_invalid_params(self):
         """Test that get_query_state only returns valid parameters"""
@@ -31,7 +32,7 @@ class QueryParamsMixinTests(TestCase):
         query_state = mixin.get_query_state()
         self.assertEqual(query_state, {"group": "1"})
 
-    def test_build_item_query_with_to_buy(self):
+    def test_build_entry_query_with_to_buy(self):
         """Test query building with only_to_by parameter"""
         request = self.factory.get("/?only_to_by=1")
         request.user = self.user
@@ -39,12 +40,12 @@ class QueryParamsMixinTests(TestCase):
         mixin = QueryParamsMixin()
         mixin.request = request
 
-        query = mixin.build_item_query()
-        items = CatalogItem.objects.filter(query)
+        query = mixin.build_entry_query()
+        entries = CatalogEntry.objects.filter(query)
 
-        self.assertQuerySetEqual(items, [])  # No items are to_buy
+        self.assertQuerySetEqual(entries, [])
 
-    def test_build_item_query_with_group(self):
+    def test_build_entry_query_with_group(self):
         """Test query building with group parameter"""
         request = self.factory.get(f"/?group={self.group.id}")
         request.user = self.user
@@ -52,10 +53,10 @@ class QueryParamsMixinTests(TestCase):
         mixin = QueryParamsMixin()
         mixin.request = request
 
-        query = mixin.build_item_query()
-        items = CatalogItem.objects.filter(query)
+        query = mixin.build_entry_query()
+        entries = CatalogEntry.objects.filter(query)
 
-        self.assertQuerySetEqual(items, [self.item], transform=lambda x: x)
+        self.assertQuerySetEqual(entries, [self.entry], transform=lambda x: x)
 
     def test_get_groups_query_with_flat_view(self):
         """Test that flat_view returns no groups"""
