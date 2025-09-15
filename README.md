@@ -38,7 +38,7 @@ uv run manage.py createsuperuser
 
 ### Development Server
 ```bash
-uv run manage.py compile && uv run manage.py runserver
+uv run manage.py dev
 ```
 
 ### Format and Lint Code

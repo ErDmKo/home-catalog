@@ -31,9 +31,9 @@
               {% endif %}
             </a>
           </div>
-          <div><a id="create-action" href="{% url 'catalog:create' %}">Add item</a></div>
-          <div><a id="create-catalog-group-action" href="{% url 'catalog:create-catalog-group' %}">Add Catalog</a></div>
-          <div><a id="create-group-action" href="{% url 'catalog:create-group' %}">Add group</a></div>
+          <div><a id="create-action" href="{% url 'catalog:create' %}">Items</a></div>
+          <div><a id="create-catalog-group-action" href="{% url 'catalog:create-catalog-group' %}">Catalogs</a></div>
+          <div><a id="create-group-action" href="{% url 'catalog:create-group' %}">Groups</a></div>
           <div class="user-menu">
             {% if not request.user.is_authenticated %}
               <a href="{% url 'catalog:social:begin' 'google-oauth2' %}" class="catalog_item_button_small">login</a>
