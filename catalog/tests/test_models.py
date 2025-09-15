@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from ..models import CatalogGroup, ItemGroup, CatalogItem
+from ..models import CatalogGroup, ItemGroup, ItemDefinition, CatalogEntry
 
 
 class CatalogGroupTests(TestCase):
@@ -35,29 +35,44 @@ class ItemGroupTests(TestCase):
         self.assertEqual(str(self.item_group), "Test Group")
 
 
-class CatalogItemTests(TestCase):
+class ItemDefinitionTests(TestCase):
+    def setUp(self):
+        self.item_group = ItemGroup.objects.create(title="Test Group")
+        self.item_definition = ItemDefinition.objects.create(name="Test Item Definition")
+        self.item_definition.group.add(self.item_group)
+
+    def test_item_definition_creation(self):
+        """Test that an item definition can be created with proper attributes"""
+        self.assertEqual(self.item_definition.name, "Test Item Definition")
+        self.assertEqual(self.item_definition.slug, "test-item-definition")
+        self.assertIn(self.item_group, self.item_definition.group.all())
+
+    def test_item_definition_str(self):
+        """Test the string representation of ItemDefinition"""
+        expected_str = "[Test Group] Test Item Definition"
+        self.assertEqual(str(self.item_definition), expected_str)
+
+
+class CatalogEntryTests(TestCase):
     def setUp(self):
         self.catalog_group = CatalogGroup.objects.create(name="Test Catalog")
-        self.item_group = ItemGroup.objects.create(title="Test Group")
-        self.catalog_item = CatalogItem.objects.create(
-            name="Test Item",
+        self.item_definition = ItemDefinition.objects.create(name="Test Item Definition")
+        self.catalog_entry = CatalogEntry.objects.create(
+            item_definition=self.item_definition,
             catalog_group=self.catalog_group,
             count=5.5,
             to_buy=True,
             pub_date=timezone.now(),
         )
-        self.catalog_item.group.add(self.item_group)
 
-    def test_catalog_item_creation(self):
-        """Test that a catalog item can be created with proper attributes"""
-        self.assertEqual(self.catalog_item.name, "Test Item")
-        self.assertEqual(self.catalog_item.slug, "test-item")
-        self.assertEqual(self.catalog_item.catalog_group, self.catalog_group)
-        self.assertEqual(self.catalog_item.count, 5.5)
-        self.assertTrue(self.catalog_item.to_buy)
-        self.assertIn(self.item_group, self.catalog_item.group.all())
+    def test_catalog_entry_creation(self):
+        """Test that a catalog entry can be created with proper attributes"""
+        self.assertEqual(self.catalog_entry.item_definition, self.item_definition)
+        self.assertEqual(self.catalog_entry.catalog_group, self.catalog_group)
+        self.assertEqual(self.catalog_entry.count, 5.5)
+        self.assertTrue(self.catalog_entry.to_buy)
 
-    def test_catalog_item_str(self):
-        """Test the string representation of CatalogItem"""
-        expected_str = "[Test Group] Test Item"
-        self.assertEqual(str(self.catalog_item), expected_str)
+    def test_catalog_entry_str(self):
+        """Test the string representation of CatalogEntry"""
+        expected_str = "Test Item Definition in Test Catalog"
+        self.assertEqual(str(self.catalog_entry), expected_str)

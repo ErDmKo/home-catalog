@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseBadRequest
 
-from .models import CatalogItem, ItemGroup, CatalogGroup
+from .models import ItemDefinition, CatalogEntry, ItemGroup, CatalogGroup
 
 
 class QueryParamsMixin:
@@ -30,8 +30,8 @@ class QueryParamsMixin:
         query_dict = params if params is not None else self.get_query_state()
         return urlencode(query_dict, quote_via=quote)
 
-    def build_item_query(self):
-        """Build query for CatalogItem filtering"""
+    def build_entry_query(self):
+        """Build query for CatalogEntry filtering"""
         query = Q(catalog_group__owners=self.request.user)
         params = self.get_query_state()
 
@@ -41,9 +41,9 @@ class QueryParamsMixin:
             query &= Q(to_buy=False)
 
         if params.get("group"):
-            query &= Q(group=params["group"])
+            query &= Q(item_definition__group=params["group"])
         elif not params.get("flat_view"):
-            query &= Q(group=None)
+            query &= Q(item_definition__group=None)
 
         return query
 
@@ -51,11 +51,11 @@ class QueryParamsMixin:
         """Build query for ItemGroup filtering"""
         params = self.get_query_state()
         groups = ItemGroup.objects.filter(
-            catalogitem__catalog_group__owners=self.request.user
+            itemdefinition__catalogentry__catalog_group__owners=self.request.user
         ).distinct()
 
         if params.get("only_to_by"):
-            groups = groups.filter(catalogitem__to_buy=True)
+            groups = groups.filter(itemdefinition__catalogentry__to_buy=True)
 
         if params.get("group") or params.get("flat_view"):
             groups = ItemGroup.objects.none()
@@ -64,12 +64,12 @@ class QueryParamsMixin:
 
 
 class CatalogListView(LoginRequiredMixin, QueryParamsMixin, ListView):
-    model = CatalogItem
+    model = CatalogEntry
     template_name = "catalog/index.html"
     context_object_name = "latest_catalog_list"
 
     def get_queryset(self):
-        return self.model.objects.filter(self.build_item_query())
+        return self.model.objects.filter(self.build_entry_query())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -88,9 +88,9 @@ class CatalogListView(LoginRequiredMixin, QueryParamsMixin, ListView):
         return get_object_or_404(ItemGroup, id=group_id) if group_id else None
 
 
-class ItemCreateView(LoginRequiredMixin, CreateView):
-    model = CatalogItem
-    fields = ["name", "group"]
+class EntryCreateView(LoginRequiredMixin, CreateView):
+    model = CatalogEntry
+    fields = ["item_definition"]
     success_url = reverse_lazy("catalog:index")
 
     def form_valid(self, form):
@@ -102,7 +102,12 @@ class ItemCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_initial(self):
-        return {"name": self.request.GET.get("name")}
+        initial = super().get_initial()
+        item_name = self.request.GET.get("name")
+        if item_name:
+            item_def, _ = ItemDefinition.objects.get_or_create(name=item_name)
+            initial['item_definition'] = item_def
+        return initial
 
 
 class CatalogGroupCreateView(LoginRequiredMixin, CreateView):
@@ -129,15 +134,15 @@ class ItemGroupCreateView(LoginRequiredMixin, CreateView):
     template_name = "catalog/itemgroup_form.html"
 
 
-class UpdateItemStatusView(LoginRequiredMixin, QueryParamsMixin, View):
+class UpdateEntryStatusView(LoginRequiredMixin, QueryParamsMixin, View):
     """Toggle item's to_buy status"""
 
-    def post(self, request, catalog_item_id):
-        item = get_object_or_404(
-            CatalogItem, id=catalog_item_id, catalog_group__owners=request.user
+    def post(self, request, entry_id):
+        entry = get_object_or_404(
+            CatalogEntry, id=entry_id, catalog_group__owners=request.user
         )
-        item.to_buy = not item.to_buy
-        item.save()
+        entry.to_buy = not entry.to_buy
+        entry.save()
 
         return redirect(f"{reverse_lazy('catalog:index')}?{self.encode_query()}")
 

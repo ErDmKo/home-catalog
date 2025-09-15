@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
 
-from ..models import CatalogGroup, ItemGroup, CatalogItem
+from ..models import CatalogGroup, ItemGroup, ItemDefinition, CatalogEntry
 
 
 class CatalogListViewTests(TestCase):
@@ -12,11 +12,13 @@ class CatalogListViewTests(TestCase):
         self.catalog_group.owners.add(self.user)
         self.group = ItemGroup.objects.create(title="Test Group")
 
-        # Create item first, then add group
-        self.item = CatalogItem.objects.create(
-            name="Test Item", catalog_group=self.catalog_group
+        self.item_definition = ItemDefinition.objects.create(name="Test Item Definition")
+        self.item_definition.group.add(self.group)
+
+        self.entry = CatalogEntry.objects.create(
+            item_definition=self.item_definition,
+            catalog_group=self.catalog_group,
         )
-        self.item.group.add(self.group)  # Add group through m2m relationship
 
         self.client.login(username="testuser", password="12345")
 
@@ -45,26 +47,31 @@ class CatalogListViewTests(TestCase):
 
     def test_filter_by_to_buy(self):
         """Test filtering items by to_buy status"""
-        to_buy_item = CatalogItem.objects.create(
-            name="To Buy Item", catalog_group=self.catalog_group, to_buy=True
+        item_def = ItemDefinition.objects.create(name="Another Test Item")
+        to_buy_entry = CatalogEntry.objects.create(
+            item_definition=item_def,
+            catalog_group=self.catalog_group,
+            to_buy=True,
         )
         response = self.client.get(reverse("catalog:index") + "?only_to_by=1")
         self.assertEqual(response.status_code, 200)
-        self.assertIn(to_buy_item, response.context["latest_catalog_list"])
-        self.assertNotIn(self.item, response.context["latest_catalog_list"])
+        self.assertIn(to_buy_entry, response.context["latest_catalog_list"])
+        self.assertNotIn(self.entry, response.context["latest_catalog_list"])
 
     def test_filter_by_group(self):
         """Test filtering items by group"""
         other_group = ItemGroup.objects.create(title="Other Group")
-        other_item = CatalogItem.objects.create(
-            name="Other Item", catalog_group=self.catalog_group
+        other_item_def = ItemDefinition.objects.create(name="Other Item Definition")
+        other_item_def.group.add(other_group)
+        other_entry = CatalogEntry.objects.create(
+            item_definition=other_item_def,
+            catalog_group=self.catalog_group,
         )
-        other_item.group.add(other_group)
 
         response = self.client.get(f'{reverse("catalog:index")}?group={self.group.id}')
         self.assertEqual(response.status_code, 200)
-        self.assertIn(self.item, response.context["latest_catalog_list"])
-        self.assertNotIn(other_item, response.context["latest_catalog_list"])
+        self.assertIn(self.entry, response.context["latest_catalog_list"])
+        self.assertNotIn(other_entry, response.context["latest_catalog_list"])
 
     def test_flat_view(self):
         """Test flat view mode"""
@@ -73,33 +80,36 @@ class CatalogListViewTests(TestCase):
         self.assertEqual(list(response.context["groups"]), [])
 
 
-class UpdateItemStatusViewTests(TestCase):
+class UpdateEntryStatusViewTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", password="12345")
         self.catalog_group = CatalogGroup.objects.create(name="Test Catalog")
         self.catalog_group.owners.add(self.user)
-        self.item = CatalogItem.objects.create(
-            name="Test Item", catalog_group=self.catalog_group, to_buy=False
+        self.item_definition = ItemDefinition.objects.create(name="Test Item Definition")
+        self.entry = CatalogEntry.objects.create(
+            item_definition=self.item_definition,
+            catalog_group=self.catalog_group,
+            to_buy=False,
         )
         self.client.login(username="testuser", password="12345")
 
     def test_post_toggles_to_buy(self):
         """Test that POST request toggles to_buy status"""
-        response = self.client.post(reverse("catalog:update", args=[self.item.id]))
-        self.item.refresh_from_db()
+        response = self.client.post(reverse("catalog:update", args=[self.entry.id]))
+        self.entry.refresh_from_db()
 
-        self.assertTrue(self.item.to_buy)
+        self.assertTrue(self.entry.to_buy)
         self.assertRedirects(response, reverse("catalog:index"))
 
     def test_get_returns_bad_request(self):
         """Test that GET request returns 400 Bad Request"""
-        response = self.client.get(reverse("catalog:update", args=[self.item.id]))
+        response = self.client.get(reverse("catalog:update", args=[self.entry.id]))
         self.assertEqual(response.status_code, 400)
 
     def test_post_preserves_query_params(self):
         """Test that query parameters are preserved after update"""
         response = self.client.post(
-            reverse("catalog:update", args=[self.item.id]) + "?only_to_by=1"
+            reverse("catalog:update", args=[self.entry.id]) + "?only_to_by=1"
         )
         self.assertIn("only_to_by=1", response.url)
 
@@ -113,22 +123,23 @@ class UpdateItemStatusViewTests(TestCase):
         other_user = User.objects.create_user(username="other", password="12345")
         other_catalog = CatalogGroup.objects.create(name="Other Catalog")
         other_catalog.owners.add(other_user)
-        other_item = CatalogItem.objects.create(
-            name="Other Item", catalog_group=other_catalog
+        other_item_def = ItemDefinition.objects.create(name="Other Item Definition")
+        other_entry = CatalogEntry.objects.create(
+            item_definition=other_item_def, catalog_group=other_catalog
         )
 
-        response = self.client.post(reverse("catalog:update", args=[other_item.id]))
+        response = self.client.post(reverse("catalog:update", args=[other_entry.id]))
         self.assertEqual(response.status_code, 404)
 
     def test_update_requires_login(self):
         """Test that update view requires login"""
         self.client.logout()
-        response = self.client.post(reverse("catalog:update", args=[self.item.id]))
+        response = self.client.post(reverse("catalog:update", args=[self.entry.id]))
         self.assertEqual(response.status_code, 302)
         self.assertIn("/catalog/login/", response.url)
 
 
-class ItemCreateViewTests(TestCase):
+class EntryCreateViewTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", password="12345")
         self.catalog_group = CatalogGroup.objects.create(name="Test Catalog")
@@ -141,8 +152,12 @@ class ItemCreateViewTests(TestCase):
 
     def test_create_item(self):
         """Test creating a new item"""
-        response = self.client.post(reverse("catalog:create"), {"name": "New Item"})
-        self.assertEqual(CatalogItem.objects.count(), 1)
+        item_def = ItemDefinition.objects.create(name="New Item Definition")
+        response = self.client.post(
+            reverse("catalog:create"), {"item_definition": item_def.id}
+        )
+        self.assertEqual(ItemDefinition.objects.count(), 1)
+        self.assertEqual(CatalogEntry.objects.count(), 1)
         self.assertRedirects(response, reverse("catalog:index"))
 
     def test_create_without_catalog_group(self):
@@ -155,12 +170,14 @@ class ItemCreateViewTests(TestCase):
     def test_create_with_group(self):
         """Test creating an item with a group"""
         group = ItemGroup.objects.create(title="Test Group")
+        item_def = ItemDefinition.objects.create(name="New Item Definition")
+        item_def.group.add(group)
         response = self.client.post(
-            reverse("catalog:create"), {"name": "New Item", "group": [group.id]}
+            reverse("catalog:create"), {"item_definition": item_def.id}
         )
-        self.assertEqual(CatalogItem.objects.count(), 1)
-        item = CatalogItem.objects.first()
-        self.assertIn(group, item.group.all())
+        self.assertEqual(ItemDefinition.objects.count(), 1)
+        self.assertEqual(CatalogEntry.objects.count(), 1)
+        self.assertIn(group, ItemDefinition.objects.first().group.all())
         self.assertRedirects(response, reverse("catalog:index"))
 
     def test_create_requires_login(self):
@@ -174,19 +191,21 @@ class ItemCreateViewTests(TestCase):
         """Test creating item with name from GET parameter"""
         response = self.client.get(reverse("catalog:create") + "?name=Test+Item")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["form"].initial["name"], "Test Item")
-
-    def test_create_with_empty_name(self):
-        """Test that empty name is not allowed"""
-        response = self.client.post(reverse("catalog:create"), {"name": ""})
-        self.assertEqual(response.status_code, 200)  # Form redisplay
-        self.assertEqual(CatalogItem.objects.count(), 0)
-
-        # Check form errors directly
-        self.assertTrue(response.context["form"].errors)
-        self.assertIn("name", response.context["form"].errors)
         self.assertEqual(
-            response.context["form"].errors["name"][0], "This field is required."
+            response.context["form"].initial["item_definition"].name, "Test Item"
+        )
+
+    def test_create_with_empty_item_definition(self):
+        """Test that empty item_definition is not allowed"""
+        response = self.client.post(reverse("catalog:create"), {"item_definition": ""})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(CatalogEntry.objects.count(), 0)
+
+        self.assertTrue(response.context["form"].errors)
+        self.assertIn("item_definition", response.context["form"].errors)
+        self.assertEqual(
+            response.context["form"].errors["item_definition"][0],
+            "This field is required.",
         )
 
 

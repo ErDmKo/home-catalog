@@ -14,12 +14,15 @@ from .models import (
     slugify_function,
     CatalogGroup,
     CatalogGroupInvitation,
+    ItemDefinition,
+    CatalogEntry,
 )
 
 from .serializers import (
-    CatalogItemSerializer,
     CatalogGroupSerializer,
     CatalogGroupInvitationSerializer,
+    ItemDefinitionSerializer,
+    CatalogEntrySerializer,
 )
 
 
@@ -89,15 +92,25 @@ class CatalogGroupViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class CatalogItemViewSet(viewsets.ModelViewSet):
+class ItemDefinitionViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    API endpoint that allows catalog items to be managed (view, careate, delete)
+    API endpoint that allows item definitions to be viewed or searched.
     """
 
-    queryset = CatalogItem.objects.all().order_by("name")
-    serializer_class = CatalogItemSerializer
+    queryset = ItemDefinition.objects.all().order_by("name")
+    serializer_class = ItemDefinitionSerializer
     filter_backends = [MyBackend]
     search_fields = ["slug", "group__slug"]
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class CatalogEntryViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows catalog entries to be managed.
+    """
+
+    queryset = CatalogEntry.objects.all().order_by("item_definition__name")
+    serializer_class = CatalogEntrySerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):

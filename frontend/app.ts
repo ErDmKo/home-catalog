@@ -1,17 +1,21 @@
 import { buyApi, searchApi } from "./api";
-import { CatalogItem } from "./appType";
+import { ItemDefinition, CatalogEntry } from "./const";
 import { initSelect, OPTIONS_ADD, OPTIONS_UPDATE, OptionsAction, NOT_BUY, TO_BUY, SelectOption, ADD_ITEM, } from "./select/select";
 import { asserFalsy } from "./utils/assert";
 import { DOM_ERROR, INTERNAL_ERROR } from "./utils/assert";
 import { next, subscribe } from "./utils/observer";
 
-const itemToOption = (option: CatalogItem): SelectOption => {
-  const goupFullName = option.group.length ? `${option.group.map(e => e.title).join(", ")}: ` : '';
-  const optionName = `${goupFullName}${option.name}`;
+const itemToOption = (option: ItemDefinition | CatalogEntry): SelectOption => {
+  const isEntry = 'item_definition' in option;
+  const item = isEntry ? option.item_definition : option;
+  
+  const goupFullName = item.group.length ? `${item.group.map(e => e.title).join(", ")}: ` : '';
+  const optionName = `${goupFullName}${item.name}`;
+  
   return {
     label: optionName,
     value: `${option.pk}`,
-    to_buy: option.to_buy
+    to_buy: isEntry ? option.to_buy : false
   }
 };
 
