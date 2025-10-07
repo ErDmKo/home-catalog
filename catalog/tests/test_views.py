@@ -12,7 +12,9 @@ class CatalogListViewTests(TestCase):
         self.catalog_group.owners.add(self.user)
         self.group = ItemGroup.objects.create(title="Test Group")
 
-        self.item_definition = ItemDefinition.objects.create(name="Test Item Definition")
+        self.item_definition = ItemDefinition.objects.create(
+            name="Test Item Definition"
+        )
         self.item_definition.group.add(self.group)
 
         self.entry = CatalogEntry.objects.create(
@@ -85,7 +87,9 @@ class UpdateEntryStatusViewTests(TestCase):
         self.user = User.objects.create_user(username="testuser", password="12345")
         self.catalog_group = CatalogGroup.objects.create(name="Test Catalog")
         self.catalog_group.owners.add(self.user)
-        self.item_definition = ItemDefinition.objects.create(name="Test Item Definition")
+        self.item_definition = ItemDefinition.objects.create(
+            name="Test Item Definition"
+        )
         self.entry = CatalogEntry.objects.create(
             item_definition=self.item_definition,
             catalog_group=self.catalog_group,

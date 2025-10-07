@@ -4,16 +4,17 @@ from django.db import migrations
 from django.db.models import Count
 import uuid
 
+
 def fix_duplicates(apps, schema_editor):
-    ItemGroup = apps.get_model('catalog', 'ItemGroup')
+    ItemGroup = apps.get_model("catalog", "ItemGroup")
     duplicates = (
-        ItemGroup.objects.values('title')
-        .annotate(count=Count('id'))
+        ItemGroup.objects.values("title")
+        .annotate(count=Count("id"))
         .filter(count__gt=1)
     )
 
     for duplicate in duplicates:
-        items = ItemGroup.objects.filter(title=duplicate['title'])
+        items = ItemGroup.objects.filter(title=duplicate["title"])
         for i, item in enumerate(items):
             if i > 0:
                 suffix = str(uuid.uuid4())[:8]
@@ -21,10 +22,10 @@ def fix_duplicates(apps, schema_editor):
                 item.slug = f"{item.slug}_{suffix}"
                 item.save()
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
-        ('catalog', '0010_migrate_catalog_data'),
+        ("catalog", "0010_migrate_catalog_data"),
     ]
 
     operations = [

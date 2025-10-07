@@ -13,7 +13,9 @@ class QueryParamsMixinTests(TestCase):
         self.catalog_group.owners.add(self.user)
         self.group = ItemGroup.objects.create(title="Test Group")
 
-        self.item_definition = ItemDefinition.objects.create(name="Test Item Definition")
+        self.item_definition = ItemDefinition.objects.create(
+            name="Test Item Definition"
+        )
         self.item_definition.group.add(self.group)
 
         self.entry = CatalogEntry.objects.create(

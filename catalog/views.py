@@ -6,7 +6,6 @@ from django.urls import reverse_lazy
 from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseBadRequest
-from django import forms
 from .models import ItemDefinition, CatalogEntry, ItemGroup, CatalogGroup
 
 

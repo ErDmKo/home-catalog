@@ -22,7 +22,6 @@ class Command(BaseCommand):
                 self.stdout.write(f'- {error["text"]}')
             raise CommandError("TypeScript compilation failed.")
 
-
     def handle(self, *args, **options):
         self.compile_cmd()
         self.stdout.write(self.style.SUCCESS("Compile is ready"))

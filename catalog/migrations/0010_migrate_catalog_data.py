@@ -2,17 +2,17 @@
 
 from django.db import migrations
 
+
 def migrate_data(apps, schema_editor):
-    CatalogItem = apps.get_model('catalog', 'CatalogItem')
-    ItemDefinition = apps.get_model('catalog', 'ItemDefinition')
-    CatalogEntry = apps.get_model('catalog', 'CatalogEntry')
+    CatalogItem = apps.get_model("catalog", "CatalogItem")
+    ItemDefinition = apps.get_model("catalog", "ItemDefinition")
+    CatalogEntry = apps.get_model("catalog", "CatalogEntry")
 
     for old_item in CatalogItem.objects.all():
         item_def, created = ItemDefinition.objects.get_or_create(
-            name=old_item.name,
-            defaults={'slug': old_item.slug}
+            name=old_item.name, defaults={"slug": old_item.slug}
         )
-        
+
         if created:
             item_def.group.set(old_item.group.all())
 
@@ -21,13 +21,16 @@ def migrate_data(apps, schema_editor):
             catalog_group=old_item.catalog_group,
             count=old_item.count,
             pub_date=old_item.pub_date,
-            to_buy=old_item.to_buy
+            to_buy=old_item.to_buy,
         )
 
-class Migration(migrations.Migration):
 
+class Migration(migrations.Migration):
     dependencies = [
-        ('catalog', '0009_alter_cataloggroup_options_alter_catalogitem_options_and_more'),
+        (
+            "catalog",
+            "0009_alter_cataloggroup_options_alter_catalogitem_options_and_more",
+        ),
     ]
 
     operations = [

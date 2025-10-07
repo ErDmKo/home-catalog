@@ -38,7 +38,9 @@ class ItemGroupTests(TestCase):
 class ItemDefinitionTests(TestCase):
     def setUp(self):
         self.item_group = ItemGroup.objects.create(title="Test Group")
-        self.item_definition = ItemDefinition.objects.create(name="Test Item Definition")
+        self.item_definition = ItemDefinition.objects.create(
+            name="Test Item Definition"
+        )
         self.item_definition.group.add(self.item_group)
 
     def test_item_definition_creation(self):
@@ -56,7 +58,9 @@ class ItemDefinitionTests(TestCase):
 class CatalogEntryTests(TestCase):
     def setUp(self):
         self.catalog_group = CatalogGroup.objects.create(name="Test Catalog")
-        self.item_definition = ItemDefinition.objects.create(name="Test Item Definition")
+        self.item_definition = ItemDefinition.objects.create(
+            name="Test Item Definition"
+        )
         self.catalog_entry = CatalogEntry.objects.create(
             item_definition=self.item_definition,
             catalog_group=self.catalog_group,

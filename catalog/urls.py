@@ -9,8 +9,9 @@ from . import api_views
 app_name = "catalog"
 
 router = routers.DefaultRouter()
-router.register(r"item-definitions", api_views.ItemDefinitionViewSet)
-router.register(r"catalog-entries", api_views.CatalogEntryViewSet)
+router.register(
+    r"catalog-resources", api_views.CatalogResourceViewSet, basename="catalog-resource"
+)
 router.register(r"groups", api_views.CatalogGroupViewSet)
 router.register(r"invitations", api_views.InvitationViewSet, basename="invitation")
 

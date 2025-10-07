@@ -4,20 +4,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('catalog', '0011_fix_duplicate_itemgroups'),
+        ("catalog", "0011_fix_duplicate_itemgroups"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='itemgroup',
-            name='slug',
-            field=models.SlugField(default='-', unique=True, verbose_name='slug'),
+            model_name="itemgroup",
+            name="slug",
+            field=models.SlugField(default="-", unique=True, verbose_name="slug"),
         ),
         migrations.AlterField(
-            model_name='itemgroup',
-            name='title',
-            field=models.CharField(max_length=200, unique=True, verbose_name='Group Name'),
+            model_name="itemgroup",
+            name="title",
+            field=models.CharField(
+                max_length=200, unique=True, verbose_name="Group Name"
+            ),
         ),
     ]

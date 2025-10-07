@@ -43,9 +43,7 @@ class CatalogItem(models.Model):
     catalog_group = models.ForeignKey(
         CatalogGroup, on_delete=models.CASCADE, blank=True, null=True
     )
-    count = models.DecimalField(
-        "Quantity", default=0, max_digits=100, decimal_places=5
-    )
+    count = models.DecimalField("Quantity", default=0, max_digits=100, decimal_places=5)
     pub_date = models.DateTimeField("Publication Date", default=timezone.now)
     to_buy = models.BooleanField("To Buy", default=False)
     group = models.ManyToManyField(ItemGroup, blank=True)
@@ -87,9 +85,7 @@ class ItemDefinition(models.Model):
 class CatalogEntry(models.Model):
     item_definition = models.ForeignKey(ItemDefinition, on_delete=models.CASCADE)
     catalog_group = models.ForeignKey(CatalogGroup, on_delete=models.CASCADE)
-    count = models.DecimalField(
-        "Quantity", default=0, max_digits=100, decimal_places=5
-    )
+    count = models.DecimalField("Quantity", default=0, max_digits=100, decimal_places=5)
     pub_date = models.DateTimeField("Publication Date", default=timezone.now)
     to_buy = models.BooleanField("To Buy", default=False)
 

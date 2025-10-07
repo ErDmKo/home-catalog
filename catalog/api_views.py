@@ -1,4 +1,4 @@
-from rest_framework import viewsets, filters, permissions, status, mixins
+from rest_framework import serializers, viewsets, filters, permissions, status, mixins
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField
 from django.utils.text import smart_split, unescape_string_literal
@@ -10,7 +10,6 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .models import (
-    CatalogItem,
     slugify_function,
     CatalogGroup,
     CatalogGroupInvitation,
@@ -22,8 +21,37 @@ from .serializers import (
     CatalogGroupSerializer,
     CatalogGroupInvitationSerializer,
     ItemDefinitionSerializer,
-    CatalogEntrySerializer,
 )
+
+
+class CatalogResourceSerializer(ItemDefinitionSerializer):
+    """
+    Serializes an ItemDefinition and enriches it with the current user's
+    catalog-specific information, like the 'to_buy' status.
+    This creates a unified "CatalogResource" for the frontend.
+    """
+
+    to_buy = serializers.SerializerMethodField()
+
+    class Meta(ItemDefinitionSerializer.Meta):
+        fields = ItemDefinitionSerializer.Meta.fields + ["to_buy"]
+
+    def get_to_buy(self, obj):
+        """
+        Returns the 'to_buy' status for the current user.
+        Defaults to False if no CatalogEntry exists.
+        """
+        user = self.context["request"].user
+        if user.is_anonymous:
+            return False
+
+        try:
+            entry = CatalogEntry.objects.get(
+                item_definition=obj, catalog_group__owners=user
+            )
+            return entry.to_buy
+        except CatalogEntry.DoesNotExist:
+            return False
 
 
 def search_smart_split(search_terms):
@@ -65,6 +93,62 @@ class MyBackend(filters.SearchFilter):
         return search_smart_split(cleaned_value)
 
 
+class CatalogResourceViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that presents a unified view of catalog items for the current user.
+    It allows searching all available items and updating the user-specific
+    'to_buy' status for each item.
+    """
+
+    queryset = ItemDefinition.objects.all().order_by("name")
+    serializer_class = CatalogResourceSerializer
+    filter_backends = [MyBackend]
+    search_fields = ["slug", "group__slug"]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_context(self):
+        """
+        Ensures the request context is passed to the serializer.
+        """
+        return {"request": self.request}
+
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Handles PATCH requests to update the 'to_buy' status for an item.
+        This will get or create a CatalogEntry as needed.
+        """
+        instance = self.get_object()
+        to_buy = request.data.get("to_buy")
+
+        if to_buy is None:
+            return Response(
+                {"error": "The 'to_buy' field is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user = request.user
+        catalog_group = CatalogGroup.objects.filter(owners=user).first()
+
+        if not catalog_group:
+            return Response(
+                {"error": "You do not own a catalog group."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        entry, created = CatalogEntry.objects.get_or_create(
+            item_definition=instance,
+            catalog_group=catalog_group,
+            defaults={"to_buy": to_buy},
+        )
+
+        if not created:
+            entry.to_buy = to_buy
+            entry.save()
+
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+
 class CatalogGroupViewSet(viewsets.ModelViewSet):
     queryset = CatalogGroup.objects.all()
     serializer_class = CatalogGroupSerializer
@@ -90,33 +174,6 @@ class CatalogGroupViewSet(viewsets.ModelViewSet):
         )
         serializer = CatalogGroupInvitationSerializer(invitation)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class ItemDefinitionViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    API endpoint that allows item definitions to be viewed or searched.
-    """
-
-    queryset = ItemDefinition.objects.all().order_by("name")
-    serializer_class = ItemDefinitionSerializer
-    filter_backends = [MyBackend]
-    search_fields = ["slug", "group__slug"]
-    permission_classes = [permissions.IsAuthenticated]
-
-
-class CatalogEntryViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows catalog entries to be managed.
-    """
-
-    queryset = CatalogEntry.objects.all().order_by("item_definition__name")
-    serializer_class = CatalogEntrySerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        qs = super().get_queryset()
-        return qs.filter(catalog_group__owners=user.id)
 
 
 class InvitationViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin):

@@ -6,88 +6,145 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('catalog', '0008_alter_catalogitem_pub_date_cataloggroupinvitation'),
+        ("catalog", "0008_alter_catalogitem_pub_date_cataloggroupinvitation"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='cataloggroup',
-            options={'ordering': ['name'], 'verbose_name_plural': 'Catalogs'},
+            name="cataloggroup",
+            options={"ordering": ["name"], "verbose_name_plural": "Catalogs"},
         ),
         migrations.AlterModelOptions(
-            name='catalogitem',
-            options={'ordering': [models.F('group__title'), 'name'], 'verbose_name_plural': 'Catalog Items (Old)'},
+            name="catalogitem",
+            options={
+                "ordering": [models.F("group__title"), "name"],
+                "verbose_name_plural": "Catalog Items (Old)",
+            },
         ),
         migrations.AlterModelOptions(
-            name='itemgroup',
-            options={'ordering': ['title'], 'verbose_name_plural': 'Item Groups'},
+            name="itemgroup",
+            options={"ordering": ["title"], "verbose_name_plural": "Item Groups"},
         ),
         migrations.AlterField(
-            model_name='cataloggroup',
-            name='name',
-            field=models.CharField(max_length=200, unique=True, verbose_name='Catalog Name'),
+            model_name="cataloggroup",
+            name="name",
+            field=models.CharField(
+                max_length=200, unique=True, verbose_name="Catalog Name"
+            ),
         ),
         migrations.AlterField(
-            model_name='catalogitem',
-            name='count',
-            field=models.DecimalField(decimal_places=5, default=0, max_digits=100, verbose_name='Quantity'),
+            model_name="catalogitem",
+            name="count",
+            field=models.DecimalField(
+                decimal_places=5, default=0, max_digits=100, verbose_name="Quantity"
+            ),
         ),
         migrations.AlterField(
-            model_name='catalogitem',
-            name='name',
-            field=models.CharField(max_length=200, unique=True, verbose_name='Item Name'),
+            model_name="catalogitem",
+            name="name",
+            field=models.CharField(
+                max_length=200, unique=True, verbose_name="Item Name"
+            ),
         ),
         migrations.AlterField(
-            model_name='catalogitem',
-            name='pub_date',
-            field=models.DateTimeField(default=django.utils.timezone.now, verbose_name='Publication Date'),
+            model_name="catalogitem",
+            name="pub_date",
+            field=models.DateTimeField(
+                default=django.utils.timezone.now, verbose_name="Publication Date"
+            ),
         ),
         migrations.AlterField(
-            model_name='catalogitem',
-            name='to_buy',
-            field=models.BooleanField(default=False, verbose_name='To Buy'),
+            model_name="catalogitem",
+            name="to_buy",
+            field=models.BooleanField(default=False, verbose_name="To Buy"),
         ),
         migrations.AlterField(
-            model_name='itemgroup',
-            name='title',
-            field=models.CharField(max_length=200, verbose_name='Group Name'),
+            model_name="itemgroup",
+            name="title",
+            field=models.CharField(max_length=200, verbose_name="Group Name"),
         ),
         migrations.CreateModel(
-            name='ItemDefinition',
+            name="ItemDefinition",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200, unique=True, verbose_name='Item Name')),
-                ('slug', models.SlugField(default='-', verbose_name='slug')),
-                ('group', models.ManyToManyField(blank=True, to='catalog.itemgroup')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=200, unique=True, verbose_name="Item Name"
+                    ),
+                ),
+                ("slug", models.SlugField(default="-", verbose_name="slug")),
+                ("group", models.ManyToManyField(blank=True, to="catalog.itemgroup")),
             ],
             options={
-                'verbose_name_plural': 'Item Definitions',
-                'ordering': [models.F('group__title'), 'name'],
+                "verbose_name_plural": "Item Definitions",
+                "ordering": [models.F("group__title"), "name"],
             },
         ),
         migrations.CreateModel(
-            name='CatalogEntry',
+            name="CatalogEntry",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('count', models.DecimalField(decimal_places=5, default=0, max_digits=100, verbose_name='Quantity')),
-                ('pub_date', models.DateTimeField(default=django.utils.timezone.now, verbose_name='Publication Date')),
-                ('to_buy', models.BooleanField(default=False, verbose_name='To Buy')),
-                ('catalog_group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='catalog.cataloggroup')),
-                ('item_definition', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='catalog.itemdefinition')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "count",
+                    models.DecimalField(
+                        decimal_places=5,
+                        default=0,
+                        max_digits=100,
+                        verbose_name="Quantity",
+                    ),
+                ),
+                (
+                    "pub_date",
+                    models.DateTimeField(
+                        default=django.utils.timezone.now,
+                        verbose_name="Publication Date",
+                    ),
+                ),
+                ("to_buy", models.BooleanField(default=False, verbose_name="To Buy")),
+                (
+                    "catalog_group",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="catalog.cataloggroup",
+                    ),
+                ),
+                (
+                    "item_definition",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="catalog.itemdefinition",
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'Catalog Entries',
-                'ordering': ['item_definition__name'],
+                "verbose_name_plural": "Catalog Entries",
+                "ordering": ["item_definition__name"],
             },
         ),
         migrations.AddIndex(
-            model_name='itemdefinition',
-            index=models.Index(fields=['name'], name='item_definition_name_idx'),
+            model_name="itemdefinition",
+            index=models.Index(fields=["name"], name="item_definition_name_idx"),
         ),
         migrations.AlterUniqueTogether(
-            name='catalogentry',
-            unique_together={('item_definition', 'catalog_group')},
+            name="catalogentry",
+            unique_together={("item_definition", "catalog_group")},
         ),
     ]

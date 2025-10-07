@@ -17,12 +17,12 @@ export const getCsrfToken = memo((ctx: Window): string => {
 });
 
 export const searchApi = async (query: string): Promise<ApiResult<CatalogItem>> => {
-  return fetch(`${API_URL}/item-definitions/?search=${query}`)
+  return fetch(`${API_URL}/catalog-resources/?search=${query}`)
     .then(response => response.json())
 };
 
 export const buyApi = async (ctx: Window, pk: number, toBuy: boolean): Promise<CatalogItem> => {
-  return fetch(`${API_URL}/catalog-entries/${pk}/`, {
+  return fetch(`${API_URL}/catalog-resources/${pk}/`, {
     method: 'PATCH',
     headers: {
       'X-CSRFToken': getCsrfToken(ctx),
