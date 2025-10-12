@@ -37,11 +37,6 @@ export const makeClearable = (
 
   const [buttonElement] = domCreator(ctx, wrapper, buttonTemplate);
 
-  if (!(buttonElement instanceof HTMLElement)) {
-    throw new Error('Failed to create clear button');
-  }
-
-  // Hide button initially
   buttonElement.style.display = 'none';
 
   // Subscribe to input value changes to show/hide button

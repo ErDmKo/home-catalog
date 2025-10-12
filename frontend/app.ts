@@ -1,6 +1,7 @@
 import { buyApi, searchApi } from "./api";
 import { ItemDefinition, CatalogEntry } from "./const";
-import { initSelect, OPTIONS_ADD, OPTIONS_UPDATE, OptionsAction, NOT_BUY, TO_BUY, SelectOption, ADD_ITEM, } from "./select/select";
+import { initSelect, OPTIONS_ADD, OPTIONS_UPDATE, OptionsAction, SelectOption } from "./select/select";
+import { NOT_BUY, TO_BUY, ADD_ITEM } from "./select/options-dropdown";
 import { asserFalsy } from "./utils/assert";
 import { DOM_ERROR, INTERNAL_ERROR } from "./utils/assert";
 import { next, subscribe } from "./utils/observer";
