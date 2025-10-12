@@ -6,3 +6,4 @@ staticfiles
 .venv
 htmlcov/
 .coverage
+Session.vim

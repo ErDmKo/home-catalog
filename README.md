@@ -4,13 +4,14 @@ A Django application for managing home inventory with categorization and trackin
 
 ## Features
 
-- Catalog grouping and item management
-- User ownership of catalogs
-- Invitation system for sharing catalogs
-- RESTful API
-- Google OAuth authentication
-- Docker deployment support
-- Ansible automation
+- **Shared Item Definitions**: Item definitions are global and can be reused across different users' catalogs
+- **Personal Catalog Entries**: Each user maintains their own catalog entries with individual tracking (to-buy status, quantities)
+- **Catalog Grouping**: Organize items into custom groups for better categorization
+- **Catalog Sharing**: Invitation system allows users to share catalogs with others
+- **RESTful API**: Full API support for programmatic access
+- **Google OAuth Authentication**: Secure login via Google accounts
+- **Docker Deployment**: Containerized application for easy deployment
+- **Ansible Automation**: Automated deployment and management scripts
 
 ## Development Setup
 
