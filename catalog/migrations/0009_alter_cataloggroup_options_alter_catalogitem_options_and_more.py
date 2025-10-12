@@ -122,6 +122,8 @@ class Migration(migrations.Migration):
                 (
                     "catalog_group",
                     models.ForeignKey(
+                        blank=True,
+                        null=True,
                         on_delete=django.db.models.deletion.CASCADE,
                         to="catalog.cataloggroup",
                     ),
