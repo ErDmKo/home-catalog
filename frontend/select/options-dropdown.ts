@@ -53,7 +53,7 @@ const optionTemplate = (option: SelectOption, actionObserver: ObserverInstance<I
       genText(option.label),
     ]),
     genTagDiv([
-      genText(option.to_buy ? '🔴 Нужно купить' : '🟢 Покупать не нужно'),
+      genText(option.to_buy ? '🔴 Need to buy' : '🟢 No need to buy'),
       genProp('onclick', () => {
         actionObserver(next([option.to_buy ? NOT_BUY : TO_BUY, option.value]));
       }),
@@ -75,7 +75,7 @@ const renderOptions = (
   if (!(options.length && !options.find(option => option.label !== inputValue))) {
     content = [genTagDiv([genProp('style', optionStyle())], [
         genTagDiv([
-          genText(`Добавить новую вещь: "${inputValue}"`),
+          genText(`Add new item: "${inputValue}"`),
           genProp('style', creationActionStyle),
           genProp('onclick', () => {
             actionObserver(next([ADD_ITEM, inputValue]));
