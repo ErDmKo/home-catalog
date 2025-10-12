@@ -2,6 +2,7 @@ import { asserFalsy, DOM_ERROR } from "../utils/assert";
 import { bindArg } from "../utils/bind";
 import { cleanHtml, domCreator, genAttr, genClass, genProp, genRef, genTagDiv, genText } from "../utils/dom";
 import { delayOperator, lazyObserver, next, observer, ObserverInstance, subscribe } from "../utils/observer";
+import { makeClearable } from "./clearable-input";
 
 export type SelectOption = {
   label: string,
@@ -30,7 +31,21 @@ type ItemActions =
 const FONT_SIZE_NORMAL = '16px';
 const FONT_SIZE_SMALL = '12px';
 
-const wrapperElem = (ctx: Window, element: Element): HTMLDivElement => {
+const inputContainerStyle = {
+  position: 'relative' as const  // Position for the clear button
+};
+
+const inputStyle = {
+  boxSizing: 'border-box' as const,
+  fontSize: FONT_SIZE_NORMAL,
+  width: '100%',
+  padding: '10px',
+  paddingRight: '44px',
+  border: 'none',
+  outline: 'none'
+};
+
+const wrapperElem = (ctx: Window, element: Element): [HTMLDivElement, HTMLElement] => {
   asserFalsy(element.parentElement, DOM_ERROR);
   const wrapperTemplate = genTagDiv([
     genClass('wrapper'),
@@ -38,30 +53,31 @@ const wrapperElem = (ctx: Window, element: Element): HTMLDivElement => {
       border: '1px solid #ccc',
       fontSize: FONT_SIZE_NORMAL,
       margin: '20px 0',
-    }),
-    genRef()
+    })
   ], [
+    genTagDiv([
+      genClass('input-container'),
+      genProp('style', inputContainerStyle),
+      genRef()
+    ], []),
     genTagDiv([genClass('options'), genRef()], [])
   ]);
 
-  const [wrapperRef, optionsRef] = domCreator(ctx, element.parentElement, wrapperTemplate);
-  wrapperRef.prepend(element);
+    const [wrapperRef, optionsRef] = domCreator(ctx, element.parentElement, wrapperTemplate);
+    wrapperRef.prepend(element);
 
-  if (!(optionsRef instanceof HTMLDivElement)) {
-    throw new Error(DOM_ERROR);
-  }
-  if (!(element instanceof HTMLInputElement)) {
-    throw new Error(DOM_ERROR);
-  }
-  Object.assign(element.style, {
-    boxSizing: 'border-box',
-    fontSize: FONT_SIZE_NORMAL,
-    width: '100%',
-    padding: '10px',
-    border: 'none',
-    outline: 'none'
-  });
-  return optionsRef;
+    if (!(optionsRef instanceof HTMLDivElement)) {
+      throw new Error(DOM_ERROR);
+    }
+    if (!(wrapperRef instanceof HTMLDivElement)) {
+      throw new Error(DOM_ERROR);
+    }
+    if (!(element instanceof HTMLInputElement)) {
+      throw new Error(DOM_ERROR);
+    }
+    Object.assign(element.style, inputStyle);
+    
+    return [optionsRef, wrapperRef];
 }
 
 const optionStyle = () => ({
@@ -159,26 +175,39 @@ export const initSelect = (
   input: HTMLInputElement, 
   label: Element
 ): [ObserverInstance<string>, ObserverInstance<OptionsAction>, ObserverInstance<ItemActions>]  => {
-  const optionsRef = wrapperElem(ctx, input);
+  const [optionsRef, wrapperRef] = wrapperElem(ctx, input);
   const inputObserver = observer<string>();
   const dataObserver = observer<OptionsAction>();
   const actionObserver = observer<ItemActions>();
   const [cancelSet, cancelGet] = lazyObserver<boolean>();
   let inputValue = input.value;
 
-  label.addEventListener('input', (e) => {
-    if (!(e.target instanceof HTMLInputElement)) {
-      return;
-    }
-    const nextValue = e.target.value;
+  // Create internal observer for input value changes
+  const inputValueWriteObserver = observer<string>();
+  
+  // Subscribe to handle value changes from any source
+  inputValueWriteObserver(subscribe((nextValue) => {
+    input.value = nextValue;
+    inputValue = nextValue;
+    
     if (nextValue) {
       cancelSet(false);
       inputObserver(next(nextValue));
     } else {
       cancelSet(true);
     }
-    inputValue = nextValue;
+  }));
+
+  // Source 1: User typing
+  label.addEventListener('input', (e) => {
+    if (!(e.target instanceof HTMLInputElement)) {
+      return;
+    }
+    inputValueWriteObserver(next(e.target.value));
   });
+
+  // Source 2: Clear button
+  makeClearable(ctx, wrapperRef, inputValueWriteObserver);
 
   let isCanceled: boolean = false;
 

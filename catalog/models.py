@@ -97,9 +97,7 @@ class CatalogEntry(models.Model):
         unique_together = ("item_definition", "catalog_group")
 
     def __str__(self):
-        if self.catalog_group is None:
-            return f"{self.item_definition.name} in No Catalog"
-        return f"{self.item_definition.name} in {self.catalog_group.name}"
+        return self.item_definition.name
 
 
 class CatalogGroupInvitation(models.Model):
