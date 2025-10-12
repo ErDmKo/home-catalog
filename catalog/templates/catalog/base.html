@@ -27,14 +27,16 @@
               {% if current_catalog_group %}
                 {{ current_catalog_group.name }}
               {% else %}
-                Catalog app
+                Create Your Catalog
               {% endif %}
             </a>
           </div>
-          <div><a href="{% url 'catalog:create-item-definition' %}">Items</a></div>
-          <div><a id="create-action" href="{% url 'catalog:create' %}">Entries</a></div>
-          <div><a id="create-catalog-group-action" href="{% url 'catalog:create-catalog-group' %}">Catalogs</a></div>
-          <div><a id="create-group-action" href="{% url 'catalog:create-group' %}">Groups</a></div>
+          {% if current_catalog_group %}
+            <div><a id="create-action" href="{% url 'catalog:create' %}">Items</a></div>
+            <div><a id="create-group-action" href="{% url 'catalog:create-group' %}">Groups</a></div>
+          {% else %}
+            <div><a id="create-catalog-group-action" href="{% url 'catalog:create-catalog-group' %}">Catalogs</a></div>
+          {% endif %}
           <div class="user-menu">
             {% if not request.user.is_authenticated %}
               <a href="{% url 'catalog:social:begin' 'google-oauth2' %}" class="catalog_item_button_small">login</a>

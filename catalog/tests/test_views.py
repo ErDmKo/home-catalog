@@ -143,43 +143,6 @@ class UpdateEntryStatusViewTests(TestCase):
         self.assertIn("/catalog/login/", response.url)
 
 
-class ItemDefinitionCreateViewTests(TestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(username="testuser", password="12345")
-        self.catalog_group = CatalogGroup.objects.create(name="Test Catalog")
-        self.catalog_group.owners.add(self.user)
-        self.client.login(username="testuser", password="12345")
-        self.client.request().catalog_group = self.catalog_group
-
-    def test_create_item_definition(self):
-        """Test creating a new item definition"""
-        response = self.client.post(
-            reverse("catalog:create-item-definition"), {"name": "New Item Definition"}
-        )
-        self.assertEqual(ItemDefinition.objects.count(), 1)
-        self.assertRedirects(response, reverse("catalog:index"))
-
-
-class EntryCreateViewTests(TestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(username="testuser", password="12345")
-        self.catalog_group = CatalogGroup.objects.create(name="Test Catalog")
-        self.catalog_group.owners.add(self.user)
-        self.item_definition = ItemDefinition.objects.create(
-            name="Test Item Definition"
-        )
-        self.client.login(username="testuser", password="12345")
-        self.client.request().catalog_group = self.catalog_group
-
-    def test_create_entry(self):
-        """Test creating a new catalog entry"""
-        response = self.client.post(
-            reverse("catalog:create"), {"item_definition": self.item_definition.id}
-        )
-        self.assertEqual(CatalogEntry.objects.count(), 1)
-        self.assertRedirects(response, reverse("catalog:index"))
-
-
 class CatalogLoginViewTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", password="12345")

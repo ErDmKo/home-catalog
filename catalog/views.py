@@ -6,13 +6,14 @@ from django.urls import reverse_lazy
 from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseBadRequest
+from django.core.exceptions import ValidationError
 from .models import ItemDefinition, CatalogEntry, ItemGroup, CatalogGroup
 
 
 class QueryParamsMixin:
     """Mixin to handle query parameter validation and filtering"""
 
-    VALID_PARAMS = {"only_to_by", "group", "flat_view", "error"}
+    VALID_PARAMS = {"only_to_by", "group", "flat_view", "error", "name"}
 
     def get_query_state(self):
         """Get validated query parameters from request"""
@@ -62,6 +63,60 @@ class QueryParamsMixin:
         return groups
 
 
+class CatalogResourceCreateView(LoginRequiredMixin, QueryParamsMixin, CreateView):
+    """
+    CreateView for CatalogResource: Creates an ItemDefinition (if it doesn't exist)
+    and associates it with the user's CatalogGroup via CatalogEntry.
+    Raises ValidationError if ItemDefinition already exists.
+    Reads and preserves URL query parameters.
+    Prefills form fields from URL query parameters.
+    """
+
+    model = ItemDefinition
+    fields = ["name", "group"]
+    template_name = "catalog/catalogentry_form.html"  # Reuse existing template
+
+    def get_initial(self):
+        """
+        Prefill form fields from URL query parameters.
+        """
+        initial = super().get_initial()
+        query_state = self.get_query_state()
+        initial["name"] = query_state.get("name", "")
+        group_id = query_state.get("group")
+        if group_id:
+            initial["group"] = [group_id]
+        return initial
+
+    def get_success_url(self):
+        return f"{reverse_lazy('catalog:index')}?{self.encode_query()}"
+
+    def form_valid(self, form):
+        name = form.cleaned_data["name"]
+
+        # Check if ItemDefinition already exists and raise ValidationError
+        if ItemDefinition.objects.filter(name=name).exists():
+            raise ValidationError({"name": "An item with this name already exists."})
+
+        # Get the user's CatalogGroup
+        user = self.request.user
+        catalog_group = CatalogGroup.objects.filter(owners=user).first()
+        if not catalog_group:
+            raise ValidationError("You must create a catalog group first.")
+
+        # Create ItemDefinition
+        item_def = form.save()
+
+        # Create CatalogEntry for the user
+        CatalogEntry.objects.create(
+            item_definition=item_def,
+            catalog_group=catalog_group,
+            to_buy=True,  # Default to true for new items
+        )
+
+        return super().form_valid(form)
+
+
 class CatalogListView(LoginRequiredMixin, QueryParamsMixin, ListView):
     model = CatalogEntry
     template_name = "catalog/index.html"
@@ -85,26 +140,6 @@ class CatalogListView(LoginRequiredMixin, QueryParamsMixin, ListView):
     def get_selected_group(self):
         group_id = self.get_query_state().get("group")
         return get_object_or_404(ItemGroup, id=group_id) if group_id else None
-
-
-class ItemDefinitionCreateView(LoginRequiredMixin, CreateView):
-    model = ItemDefinition
-    fields = ["name", "group"]
-    success_url = reverse_lazy("catalog:index")
-
-
-class EntryCreateView(LoginRequiredMixin, CreateView):
-    model = CatalogEntry
-    fields = ["item_definition"]
-    success_url = reverse_lazy("catalog:index")
-
-    def form_valid(self, form):
-        if not self.request.catalog_group:
-            form.add_error(None, "No catalog group found for user")
-            return self.form_invalid(form)
-
-        form.instance.catalog_group = self.request.catalog_group
-        return super().form_valid(form)
 
 
 class CatalogGroupCreateView(LoginRequiredMixin, CreateView):

@@ -17,12 +17,7 @@ router.register(r"invitations", api_views.InvitationViewSet, basename="invitatio
 
 urlpatterns = [
     path("", views.CatalogListView.as_view(), name="index"),
-    path("create/", views.EntryCreateView.as_view(), name="create"),
-    path(
-        "create-item-definition/",
-        views.ItemDefinitionCreateView.as_view(),
-        name="create-item-definition",
-    ),
+    path("create/", views.CatalogResourceCreateView.as_view(), name="create"),
     path(
         "create-catalog-group/",
         views.CatalogGroupCreateView.as_view(),
