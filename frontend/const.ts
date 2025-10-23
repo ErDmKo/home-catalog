@@ -4,21 +4,16 @@ declare global {
   }
 }
 
-export type ItemDefinition = {
+export type CatalogGroup = {
+  title: string,
+}
+
+export type CatalogResource = {
   pk: number,
+  group: CatalogGroup[],
   name: string,
-  group: {
-    title: string
-  }[]
-}
-
-export type CatalogEntry = {
-  pk: number,
-  item_definition: ItemDefinition,
   to_buy: boolean,
-  catalog_group: number
 }
-
 export type ApiResult<Item> = {
   count: number,
   next: string | null,

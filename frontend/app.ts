@@ -1,12 +1,12 @@
 import { buyApi, searchApi } from "./api";
-import { ItemDefinition, CatalogEntry } from "./const";
 import { initSelect, OPTIONS_ADD, OPTIONS_UPDATE, OptionsAction, SelectOption } from "./select/select";
 import { NOT_BUY, TO_BUY, ADD_ITEM } from "./select/options-dropdown";
+import { CatalogResource } from "./const";
 import { asserFalsy } from "./utils/assert";
 import { DOM_ERROR, INTERNAL_ERROR } from "./utils/assert";
 import { next, subscribe } from "./utils/observer";
 
-const itemToOption = (option: CatalogItem): SelectOption => {
+const itemToOption = (option: CatalogResource): SelectOption => {
   const goupFullName = option.group.length ? `${option.group.map(e => e.title).join(", ")}: ` : '';
   const optionName = `${goupFullName}${option.name}`;
   

@@ -1,3 +1,8 @@
+:root {
+  --catalog-name-max-width: 180px;
+  --user-email-max-width: 150px;
+}
+
 * {
   font-family: 'Roboto', 'sans-serif'
 }
@@ -11,11 +16,6 @@ body {
   padding: 0 10px;
 }
 
-@media only screen and  (min-width: 900px) {
-  .content_block {
-    max-width: 100%;
-  }
-}
 
 .catalog_list {
   padding: 0px;
@@ -57,8 +57,13 @@ body {
   margin: 0;
 }
 
+
 /* New Burger Menu Styles */
 .burger-menu {
+  position: absolute;
+  top: 50%;
+  right: 10px; /* Aligns with the body's margin */
+  transform: translateY(-50%);
   display: flex;
   flex-direction: column;
   justify-content: space-around;
@@ -85,25 +90,32 @@ body {
 .header-nav {
   display: none; /* Hidden by default */
   flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
+  align-items: flex-start; /* Aligns items to the left */
   background: white;
   position: absolute;
   top: 100%;
   left: 0;
   width: 100%;
-  padding: 2rem 0;
+}
+.header-nav a {
+  padding: 10px 0px;
+  width: 100%;
+}
+
+.header-nav a:last-of-type {
   border-bottom: 1px solid rgb(204, 204, 204);
 }
 
 .header-nav.is-active {
+  border-top: 1px solid rgb(204, 204, 204);
   display: flex; /* Show when active */
+  border-bottom: 1px solid rgb(204, 204, 204);
 }
 
 /* Text Truncation Styles */
 .catalog-name {
   display: inline-block;
-  max-width: 180px; /* Adjust as needed */
+  max-width: var(--catalog-name-max-width);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -111,14 +123,24 @@ body {
 
 .user-email {
   display: inline-block;
-  max-width: 150px;
+  max-width: var(--user-email-max-width);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: middle;
 }
 
-/* Desktop styles */
+@media only screen and (min-width: 900px) {
+  .content_block {
+    max-width: 100%;
+  }
+}
+@media only screen and (max-width: 768px) {
+  .user-menu {
+    padding: 10px 0px
+  }
+}
+
 @media (min-width: 768px) {
   .burger-menu {
     display: none; /* Hide burger on large screens */
@@ -135,9 +157,13 @@ body {
     padding: 0;
     align-items: center;
   }
+  .header-nav.is-active {
+    border: none;
+  }
 
-  .header-nav a {
-    padding: 0;
+  .header-nav a[id] {
+    padding: 0px;
+    border: none;
   }
 }
 
@@ -166,6 +192,9 @@ body {
   margin-left: auto;
 }
 
+.catalog_actions, .catalog_list {
+  margin: 0px -10px;
+}
 .catalog_actions .catalog_item_button_small {
   margin: 10px;
 }
