@@ -62,7 +62,7 @@ body {
 .burger-menu {
   position: absolute;
   top: 50%;
-  right: 10px; /* Aligns with the body's margin */
+  right: 0;
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
@@ -89,6 +89,7 @@ body {
 /* Mobile Navigation Styles */
 .header-nav {
   display: none; /* Hidden by default */
+  z-index: 100;
   flex-direction: column;
   align-items: flex-start; /* Aligns items to the left */
   background: white;
